@@ -1,4 +1,4 @@
-namespace VideoPlatform.Web.Models {
+namespace VideoPlatform.Web.Areas.Admin.Models {
     public class ErrorViewModel {
         public string? RequestId { get; set; }
 

@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VideoPlatform.Web.Models;
 
-namespace VideoPlatform.Web.Controllers {
-    [Authorize]
-    public class HomeController : Controller {
+namespace VideoPlatform.Web.Areas.Admin.Controllers {
+    [Area("Admin")]
+    public class HomeController : _BaseAdminController {
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger) {
