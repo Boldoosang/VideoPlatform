@@ -5,6 +5,9 @@ import plugin from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [plugin()],
     server: {
-        port: 60400,
-    }
+        port: 63541,
+    },
+    optimizeDeps: {
+        include: ['ffprobe-wasm']
+    },
 })

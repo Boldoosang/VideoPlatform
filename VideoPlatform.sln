@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoPlatform.Domain", "Vid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoPlatform.Infrastructure", "VideoPlatform.Infrastructure\VideoPlatform.Infrastructure.csproj", "{00F47A26-09B9-4F45-B1BD-2A5072C8ECE4}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "VideoPlatform.VideoEditor", "VideoPlatform.VideoEditor\VideoPlatform.VideoEditor.esproj", "{89A60569-98E2-4215-9A13-7AA3A47A09DC}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +27,12 @@ Global
 		{00F47A26-09B9-4F45-B1BD-2A5072C8ECE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00F47A26-09B9-4F45-B1BD-2A5072C8ECE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00F47A26-09B9-4F45-B1BD-2A5072C8ECE4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{89A60569-98E2-4215-9A13-7AA3A47A09DC}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6CC55CC-5DF2-4074-AC22-6DCFD1BECFF6}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

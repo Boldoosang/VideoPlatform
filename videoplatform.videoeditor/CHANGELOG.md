@@ -4,8 +4,8 @@ The following tools were used to generate this project:
 - create-vite
 
 The following steps were used to generate this project:
-- Create react project with create-vite: `npm init --yes vite@latest videoplatform.videoeditor -- --template=react`.
-- Updating vite.config.js with port.
+- Create react project with create-vite: `npm init --yes vite@latest videoplatform.videoeditor -- --template=react-ts`.
+- Updating vite.config.ts with port.
 - Create project file (`videoplatform.videoeditor.esproj`).
 - Create `launch.json` to enable debugging.
 - Add project to solution.
