@@ -1,0 +1,17 @@
+﻿@model List<string>
+
+<h2>Video Library</h2>
+<div class="video-grid">
+    @foreach (var videoUrl in Model)
+    {
+        <div class="video-item">
+            <video width="320" height="240" controls>
+                <source src="@videoUrl" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <a asp-action="Edit", asp-controller="VideoEditor" class="btn btn-primary">
+                Edit Video
+            </a>
+        </div>
+    }
+</div>

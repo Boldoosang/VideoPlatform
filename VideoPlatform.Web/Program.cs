@@ -29,6 +29,7 @@ builder.Services.AddDbContext<VideoPlatformContext>(options => options.UseSqlSer
 
 // Dependency Injection
 builder.Services.AddSingleton(new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEpisodeRepository, EpisodeRepository>();
 builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
 builder.Services.AddScoped<IVideoRepository, VideoRepository>();
