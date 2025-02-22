@@ -2,8 +2,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using VideoPlatform.Domain.Interfaces;
+using VideoPlatform.Infrastructure;
+using VideoPlatform.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,13 +17,19 @@ builder.Services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
 
 builder.Services.AddControllersWithViews(options =>
 {
-    var policy = new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build();
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
     options.Filters.Add(new AuthorizeFilter(policy));
 });
-builder.Services.AddRazorPages()
-    .AddMicrosoftIdentityUI();
+
+builder.Services.AddRazorPages().AddMicrosoftIdentityUI();
+
+string connectionString = builder.Configuration.GetConnectionString("DatabaseConnection") ?? throw new InvalidOperationException("Database connection string is not provided.");
+builder.Services.AddDbContext<VideoPlatformContext>(options => options.UseSqlServer(connectionString));
+
+// Dependency Injection
+builder.Services.AddScoped<IEpisodeRepository, EpisodeRepository>();
+builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
+builder.Services.AddScoped<IVideoRepository, VideoRepository>();
 
 var app = builder.Build();
 
