@@ -1,0 +1,15 @@
+﻿@{
+    ViewData["Title"] = "Upload Video";
+}
+
+<h1>Upload Video</h1>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <p style="color: green;">@ViewBag.Message</p>
+}
+
+<form asp-action="Upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" required />
+    <button type="submit">Upload</button>
+</form>

@@ -1,0 +1,13 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>Admin Dashboard</h1>
+
+<p>Welcome, @User.Identity?.Name!</p>
+
+<ul>
+    <li><a asp-action="Index" asp-controller="Season">Manage Seasons</a></li>
+    <li><a asp-action="Index" asp-controller="Episode">Manage Episodes</a></li>
+    <li><a asp-action="Upload" asp-controller="Admin">Upload Video</a></li>
+</ul>
