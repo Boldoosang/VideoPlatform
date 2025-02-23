@@ -3,18 +3,14 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VideoPlatform.Domain.Interfaces;
+using VideoPlatform.Domain.Models;
 
 namespace VideoPlatform.Web.Controllers {
     [Authorize(Roles = "Admin")]
-    public class AdminController : Controller {
+    public class AdminController(BlobServiceClient blobServiceClient, IEpisodeRepository episodeRepository) : Controller {
 
-        private readonly BlobServiceClient _blobServiceClient;
-        private readonly IEpisodeRepository _episodeRepository;
-
-        public AdminController(BlobServiceClient blobServiceClient, IEpisodeRepository episodeRepository) {
-            _blobServiceClient = blobServiceClient;
-            _episodeRepository = episodeRepository;
-        }
+        private readonly BlobServiceClient _blobServiceClient = blobServiceClient;
+        private readonly IEpisodeRepository _episodeRepository = episodeRepository;
 
         public IActionResult Index() {
             return View();
@@ -26,14 +22,20 @@ namespace VideoPlatform.Web.Controllers {
 
         [HttpGet]
         public async Task<IActionResult> VideoLibrary() {
-            var container = _blobServiceClient.GetBlobContainerClient("videos");
+            var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
             var blobs = container.GetBlobsAsync();
 
-            var videoList = new List<string>();
+            var videoList = new List<Video>();
 
             await foreach (var blob in blobs) {
-                var blobUri = container.GetBlobClient(blob.Name).Uri.ToString();
-                videoList.Add(blobUri);
+                var blobClient = container.GetBlobClient(blob.Name);
+                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
+
+                videoList.Add(new Video() { 
+                    Title = blob.Name,
+                    FilePath = blobClient.Uri.ToString(),
+                    UploadDate = blobProperties.Value.LastModified.DateTime,            
+                });
             }
 
             return View(videoList);
@@ -44,7 +46,7 @@ namespace VideoPlatform.Web.Controllers {
             if (file == null || file.Length == 0)
                 return BadRequest("Please select a file.");
 
-            var container = _blobServiceClient.GetBlobContainerClient("videos");
+            var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
             var blob = container.GetBlobClient(file.FileName);
 
             using (var stream = file.OpenReadStream()) {
@@ -78,6 +80,34 @@ namespace VideoPlatform.Web.Controllers {
             }
 
             return Ok("Uploaded to Azure");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteVideo(string data) {
+            try {
+                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+
+                var blob = container.GetBlobClient(data);
+
+                if (await blob.ExistsAsync()) {
+                    await blob.DeleteIfExistsAsync();
+                }
+
+                // Remove the video metadata from your database if needed.
+                // var video = _videoRepository.GetVideoAsync(hmmm);
+                // if (video != null)
+                // {
+                //     _videoRepository.DeleteVideo(video);
+                //     await _dbContext.SaveChangesAsync();
+                // }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex) {
+                // Handle the exception (logging, etc.)
+                // Optionally return an error view
+                return View("Error", new { message = ex.Message });
+            }
         }
     }
 }

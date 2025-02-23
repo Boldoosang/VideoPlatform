@@ -1,0 +1,64 @@
+﻿@model Modal
+
+<div class="modal fade" id="@Model.Id" tabindex="-1" aria-labelledby="@(Model.Id)Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="@(Model.Id)Label">@Model.Title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="@(Model.Id)-modalForm" asp-action="@Model.SubmissionButton.Action" asp-controller="@Model.SubmissionButton.Controller" method="@Model.SubmissionButton.Method">
+                <div class="modal-body">
+                    <p>@Model.Body</p>
+                    <input id="@(Model.Id)-formDataId" name="data" value="0" hidden/>
+                    <input id="@(Model.Id)-formDataIdVisible" name="data" value="0" class="text-center fw-bold align-self-center w-100 mt-0" disabled/>
+                    <span id="modalStatusMessage"></span>
+                </div>
+                <div class="modal-footer row gx-2 justify-content-center d-flex">
+                    <div class="col-12 col-lg-5">
+                        <button id="@(Model.Id)-submissionButton" type="button" class="@Model.SubmissionButton.CssClass w-100">@Model.SubmissionButton.Text</button>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modal = document.getElementById('@(Model.Id)');
+        var submissionButton = document.getElementById('@(Model.Id)-submissionButton');
+        var dataElement = document.getElementById('@(Model.Id)-formDataId');
+        var visibleDataElement = document.getElementById('@(Model.Id)-formDataIdVisible');
+        var data = 0;
+        var statusMessage = document.getElementById('modalStatusMessage');
+
+        modal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // Button that triggered the modal
+            data = button.getAttribute('data-bs-data'); // Get the data from the button
+            statusMessage.innerText = ""; 
+            statusMessage.classList.remove("text-danger"); 
+            dataElement.value = data; // Set the data value in the form input
+            visibleDataElement.value = data;
+        });
+
+        submissionButton.addEventListener("click", function(event) {
+            event.preventDefault(); 
+
+            try {
+                var form = document.getElementById('@(Model.Id)-modalForm');
+                if (form) {
+                    form.submit();
+                } else {
+                    throw new Error("Form not found.");
+                }
+            } catch (e) {
+                statusMessage.innerText = "An unexpected error has occurred.";
+                statusMessage.classList.add("text-danger"); // Display error message
+            }
+        });
+    });
+</script>
