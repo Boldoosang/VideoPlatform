@@ -71,15 +71,15 @@ namespace VideoPlatform.Web.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadToAzure(IFormFile file) {
-            var container = _blobServiceClient.GetBlobContainerClient("videos");
+        public async Task<IActionResult> UploadEditedVideo(IFormFile file) {
+            var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
             var blob = container.GetBlobClient(file.FileName);
 
             using (var stream = file.OpenReadStream()) {
                 await blob.UploadAsync(stream, true);
             }
 
-            return Ok("Uploaded to Azure");
+            return RedirectToAction("Index");
         }
 
         [HttpPost]

@@ -1536,35 +1536,24 @@ function add_text() {
   }
 }
 
-function exportVideo(blob) {
-  alert("Warning: exported video may need to be fixed with cloudconvert.com or similar tools");
-  const vid = document.createElement('video');
-  vid.controls = true;
-  vid.src = URL.createObjectURL(blob);
-  backgroundElem(vid);
-  let extension = blob.type.split(';')[0].split('/')[1];
+async function exportVideo(blob) {
+    const vid = document.createElement('video');
+    vid.controls = true;
+    vid.src = URL.createObjectURL(blob);
+    backgroundElem(vid);
+    let extension = blob.type.split(';')[0].split('/')[1];
 
-  function make_a() {
-    let h = document.getElementById('header');
-    let a = h.querySelector('#download');
-    if (!a) {
-      a = document.createElement('a');
-      a.id = 'download';
-      a.download = (new Date()).getTime() + '.' + extension;
-      a.textContent = 'download';
-    }
-    a.href = vid.src;
-    document.getElementById('header').appendChild(a);
-  }
-  vid.ontimeupdate = function() {
-    this.ontimeupdate = () => {
-      return;
-    }
-    make_a();
-    vid.currentTime = 0;
-  }
-  make_a();
-  vid.currentTime = Number.MAX_SAFE_INTEGER;
+    // Prepare form data to send the file to the controller
+    const formData = new FormData();
+    formData.append('file', blob, `video.${extension}`);
+
+    // Send the video via a POST request
+    await fetch('/Admin/UploadEditedVideo', {
+        method: 'POST',
+        body: formData,
+    }).then(() => {
+        alert("Video uploaded!");
+    })
 }
 
 function uploadSupportedType(files) {
