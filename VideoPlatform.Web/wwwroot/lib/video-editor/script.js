@@ -1582,6 +1582,36 @@ function uploadSupportedType(files) {
   return !badUserExtensions.length > 0;
 }
 
+function initialLoad() {
+    console.log(videoUrl);
+
+    // Validate the video URL (basic validation)
+    if (videoUrl) {
+        // Fetch the video file as a Blob
+        fetch(videoUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch video from Azure');
+                }
+                return response.blob(); // Convert the response to a Blob
+            })
+            .then(blob => {
+                // Create a File object from the Blob
+                const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+
+                // Pass the file to the player
+                player.addFile(file);  // Now you're passing the actual file to addFile
+            })
+            .catch(error => {
+                console.error('Error fetching video:', error);
+                alert('Could not load video.');
+            });
+    } else {
+        alert("Invalid URL, please provide a valid video link.");
+    }
+}
+
+
 function upload() {
   let f = document.getElementById('filepicker');
   f.addEventListener('input', function(e) {
@@ -1684,3 +1714,7 @@ function download(ev) {
     player.time = 0;
   });
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    initialLoad();
+});

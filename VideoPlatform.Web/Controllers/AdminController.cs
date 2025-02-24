@@ -67,7 +67,7 @@ namespace VideoPlatform.Web.Controllers {
             if (file == null || file.Length == 0)
                 return BadRequest("Please select a file.");
 
-            var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+            var container = _blobServiceClient.GetBlobContainerClient("videos");
             var blob = container.GetBlobClient(file.FileName);
 
             using (var stream = file.OpenReadStream()) {
