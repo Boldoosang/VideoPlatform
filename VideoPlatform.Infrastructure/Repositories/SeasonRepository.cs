@@ -16,6 +16,7 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
         public async Task AddSeasonAsync(Season season) {
             await _context.Seasons.AddAsync(season);
+            await _context.SaveChangesAsync();
             return;
         }
 
@@ -35,6 +36,11 @@ namespace VideoPlatform.Infrastructure.Repositories {
         public async Task<Season?> GetSeasonAsync(int seasonId) {
             return await _context.Seasons.FirstOrDefaultAsync(v => v.Id == seasonId);
         }
+
+        public async Task<bool> SeasonExists(int seasonId) {
+            return await _context.Seasons.AnyAsync(e => e.Id == seasonId);
+        }
+        
 
         public async Task UpdateSeasonAsync(Season season) {
             _context.Seasons.Update(season);

@@ -17,14 +17,26 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.11">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Identity.Web" Version="3.2.2" />
     <PackageReference Include="Microsoft.Identity.Web.UI" Version="3.2.2" />
     <PackageReference Include="Microsoft.Identity.Web.DownstreamApi" Version="3.2.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VideoPlatform.Domain\VideoPlatform.Domain.csproj" />
     <ProjectReference Include="..\VideoPlatform.Infrastructure\VideoPlatform.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Admin\EditedVideoLibrary.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

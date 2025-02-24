@@ -16,6 +16,7 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
         public async Task AddEpisodeAsync(Episode episode) {
             await _context.Episodes.AddAsync(episode);
+            await _context.SaveChangesAsync();
             return;
         }
 
@@ -34,6 +35,14 @@ namespace VideoPlatform.Infrastructure.Repositories {
 
         public async Task<Episode?> GetEpisodeAsync(int episodeId) {
             return await _context.Episodes.FirstOrDefaultAsync(v => v.Id == episodeId);
+        }
+
+        public async Task<IEnumerable<Episode>> GetStandaloneEpisodesAsync() {
+            return await _context.Episodes.Where(e => e.seasonId == null).ToListAsync();
+        }
+
+        public async Task<bool> EpisodeExists(int episodeId) {
+            return await _context.Episodes.AnyAsync(e => e.Id == episodeId);
         }
 
         public async Task UpdateEpisodeAsync(Episode episode) {

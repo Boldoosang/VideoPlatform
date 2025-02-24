@@ -1,7 +1,9 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace VideoPlatform.Web.Controllers {
+    [Authorize(Roles = "Admin")]
     public class VideoEditorController : Controller {
 
         private readonly BlobServiceClient _blobServiceClient;

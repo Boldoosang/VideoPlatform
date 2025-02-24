@@ -12,5 +12,6 @@ namespace VideoPlatform.Domain.Interfaces {
         Task AddSeasonAsync(Season season);
         Task UpdateSeasonAsync(Season season);
         Task DeleteSeasonByIdAsync(int seasonId);
+        Task<bool> SeasonExists(int seasonId);
     }
 }

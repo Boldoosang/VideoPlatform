@@ -6,6 +6,7 @@ namespace VideoPlatform.Domain.Models {
         public required string Title { get; set; }
         public required string Description { get; set; }
         public DateTime PublishDate { get; set; }
+        public required string FilePath { get; set; }
         public bool IsPublished { get; set; }
         public int? seasonId { get; set; }
         public virtual Season? Season { get; set; }

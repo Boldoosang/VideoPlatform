@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VideoPlatform.Infrastructure;
 
@@ -11,9 +12,11 @@ using VideoPlatform.Infrastructure;
 namespace VideoPlatform.Infrastructure.Migrations
 {
     [DbContext(typeof(VideoPlatformContext))]
-    partial class VideoPlatformContextModelSnapshot : ModelSnapshot
+    [Migration("20250224020127_AddFilePathToEpisode")]
+    partial class AddFilePathToEpisode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,7 +58,7 @@ namespace VideoPlatform.Infrastructure.Migrations
 
                     b.HasIndex("seasonId");
 
-                    b.ToTable("Episodes", (string)null);
+                    b.ToTable("Episodes");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Season", b =>
@@ -82,7 +85,7 @@ namespace VideoPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Seasons", (string)null);
+                    b.ToTable("Seasons");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Video", b =>
@@ -106,7 +109,7 @@ namespace VideoPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Videos", (string)null);
+                    b.ToTable("Videos");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Episode", b =>

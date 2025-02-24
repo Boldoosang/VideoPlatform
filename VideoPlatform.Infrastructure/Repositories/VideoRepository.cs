@@ -16,6 +16,7 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
         public async Task AddVideoAsync(Video video) {
             await _context.Videos.AddAsync(video);
+            await _context.SaveChangesAsync();
             return;
         }
 

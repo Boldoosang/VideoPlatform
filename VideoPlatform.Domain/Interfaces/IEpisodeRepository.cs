@@ -12,5 +12,7 @@ namespace VideoPlatform.Domain.Interfaces {
         Task AddEpisodeAsync(Episode episode);
         Task UpdateEpisodeAsync(Episode episode);
         Task DeleteEpisodeByIdAsync(int episodeId);
+        Task<IEnumerable<Episode>> GetStandaloneEpisodesAsync();
+        Task<bool> EpisodeExists(int episodeId);
     }
 }

@@ -22,7 +22,7 @@ namespace VideoPlatform.Web.Controllers {
 
         [HttpGet]
         public async Task<IActionResult> VideoLibrary() {
-            var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+            var container = _blobServiceClient.GetBlobContainerClient("videos");
             var blobs = container.GetBlobsAsync();
 
             var videoList = new List<Video>();
@@ -35,6 +35,27 @@ namespace VideoPlatform.Web.Controllers {
                     Title = blob.Name,
                     FilePath = blobClient.Uri.ToString(),
                     UploadDate = blobProperties.Value.LastModified.DateTime,            
+                });
+            }
+
+            return View(videoList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditedVideoLibrary() {
+            var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
+            var blobs = container.GetBlobsAsync();
+
+            var videoList = new List<Video>();
+
+            await foreach (var blob in blobs) {
+                var blobClient = container.GetBlobClient(blob.Name);
+                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
+
+                videoList.Add(new Video() {
+                    Title = blob.Name,
+                    FilePath = blobClient.Uri.ToString(),
+                    UploadDate = blobProperties.Value.LastModified.DateTime,
                 });
             }
 
@@ -93,19 +114,9 @@ namespace VideoPlatform.Web.Controllers {
                     await blob.DeleteIfExistsAsync();
                 }
 
-                // Remove the video metadata from your database if needed.
-                // var video = _videoRepository.GetVideoAsync(hmmm);
-                // if (video != null)
-                // {
-                //     _videoRepository.DeleteVideo(video);
-                //     await _dbContext.SaveChangesAsync();
-                // }
-
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
-                // Handle the exception (logging, etc.)
-                // Optionally return an error view
                 return View("Error", new { message = ex.Message });
             }
         }
