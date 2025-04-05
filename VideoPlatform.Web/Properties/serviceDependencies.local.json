@@ -1,13 +1,8 @@
 {
   "dependencies": {
     "identityapp1": {
-      "connectionInfo": "App registration: VideoPlatform, Tenant: The University of the West Indies, St. Augustine (my.uwi.edu - Microsoft Entra ID)",
+      "connectionInfo": "App registration: VideoPlatform, Tenant: JustinBaldeosingh (justinbaldeosingh.onmicrosoft.com - Microsoft Entra ID)",
       "type": "identityapp.default"
-    },
-    "mssql1": {
-      "secretStore": "LocalSecretsFile",
-      "type": "mssql.local",
-      "connectionId": "ConnectionStrings:DatabaseConnection"
     }
   }
 }
