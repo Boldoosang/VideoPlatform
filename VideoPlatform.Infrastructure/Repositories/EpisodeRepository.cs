@@ -30,7 +30,7 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
 
         public async Task<IEnumerable<Episode>> GetAllEpisodesAsync() {
-            return await _context.Episodes.ToListAsync();
+            return await _context.Episodes.Include(e => e.Season).OrderByDescending(e => e.PublishDate).ToListAsync();
         }
 
         public async Task<Episode?> GetEpisodeAsync(int episodeId) {
