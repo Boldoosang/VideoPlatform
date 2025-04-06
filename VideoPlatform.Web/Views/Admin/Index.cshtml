@@ -2,14 +2,60 @@
     ViewData["Title"] = "Admin Dashboard";
 }
 
-<h1>Admin Dashboard</h1>
+<div class="container pb-5 pt-3">
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-white">Admin Dashboard</h1>
+        <p class="lead text-light">Welcome, @User.Identity?.Name!</p>
+    </div>
 
-<p>Welcome, @User.Identity?.Name!</p>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+        <div class="col">
+            <a asp-action="Index" asp-controller="Season" class="text-decoration-none">
+                <div class="card h-100 bg-primary text-light border-0 shadow-lg rounded-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-collection-fill display-3 mb-3"></i>
+                        <h4 class="card-title fw-semibold">Manage Seasons</h4>
+                        <p class="card-text text-white-50">Create and update seasons</p>
+                    </div>
+                </div>
+            </a>
+        </div>
 
-<ul>
-    <li><a asp-action="Index" asp-controller="Season">Manage Seasons</a></li>
-    <li><a asp-action="Index" asp-controller="Episode">Manage Episodes</a></li>
-    <li><a asp-action="Upload" asp-controller="Admin">Upload Video</a></li>
-    <li><a asp-action="VideoLibrary" asp-controller="Admin">Video Library</a></li>
-    <li><a asp-action="EditedVideoLibrary" asp-controller="Admin">Edited Video Library</a></li>
-</ul>
+        <div class="col">
+            <a asp-action="Index" asp-controller="Episode" class="text-decoration-none">
+                <div class="card h-100 bg-success text-light border-0 shadow-lg rounded-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-play-btn-fill display-3 mb-3"></i>
+                        <h4 class="card-title fw-semibold">Manage Episodes</h4>
+                        <p class="card-text text-white-50">Publish episodes and assign seasons</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a asp-action="VideoLibrary" asp-controller="Admin" class="text-decoration-none">
+                <div class="card h-100 bg-secondary text-light border-0 shadow-lg rounded-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-camera-video-fill display-3 mb-3"></i>
+                        <h4 class="card-title fw-semibold">Video Library</h4>
+                        <p class="card-text text-white-50">View and manage uploaded videos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col">
+            <a asp-action="EditedVideoLibrary" asp-controller="Admin" class="text-decoration-none">
+                <div class="card h-100 bg-danger text-light border-0 shadow-lg rounded-4">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-scissors display-3 mb-3"></i>
+                        <h4 class="card-title fw-semibold">Edited Video Library</h4>
+                        <p class="card-text text-white-50">View and manage edited videos</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>

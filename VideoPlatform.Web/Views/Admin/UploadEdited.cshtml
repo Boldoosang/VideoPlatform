@@ -1,0 +1,20 @@
+﻿@model FileUploadModel
+
+@{
+    ViewData["Title"] = "Upload Video";
+}
+
+<h1>Upload Edited Video</h1>
+
+<form asp-action="UploadEditedVideo" asp-controller="Admin" enctype="multipart/form-data" method="post">
+    <div>
+        <label asp-for="File">Select a video file (.mp4 or .webm):</label>
+        <input asp-for="File" type="file" accept=".mp4,.webm" class="form-control" required />
+        <span asp-validation-for="File" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
