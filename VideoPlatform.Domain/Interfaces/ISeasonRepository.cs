@@ -7,11 +7,11 @@ using VideoPlatform.Domain.Models;
 
 namespace VideoPlatform.Domain.Interfaces {
     public interface ISeasonRepository {
-        Task<Season?> GetSeasonAsync(int seasonId);
+        Task<Season?> GetSeasonAsync(int SeasonId);
         Task<IEnumerable<Season>> GetAllSeasonsAsync();
         Task AddSeasonAsync(Season season);
         Task UpdateSeasonAsync(Season season);
-        Task DeleteSeasonByIdAsync(int seasonId);
-        Task<bool> SeasonExists(int seasonId);
+        Task DeleteSeasonByIdAsync(int SeasonId);
+        Task<bool> SeasonExists(int SeasonId);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Domain.Models;
+using VideoPlatform.Web.Models;
 
 namespace VideoPlatform.Web.Controllers {
     [Authorize(Roles = "Admin")]
@@ -17,6 +18,11 @@ namespace VideoPlatform.Web.Controllers {
         }
 
         public IActionResult Upload() {
+            return View();
+        }
+
+        public IActionResult UploadEdited()
+        {
             return View();
         }
 
@@ -63,19 +69,47 @@ namespace VideoPlatform.Web.Controllers {
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadVideo(IFormFile file) {
+        public async Task<IActionResult> UploadVideo(FileUploadModel fileUploadModel)
+        {
+            if (!ModelState.IsValid)
+                return View(fileUploadModel);
+
+            var file = fileUploadModel.File;
+
             if (file == null || file.Length == 0)
                 return BadRequest("Please select a file.");
+
+            const long maxFileSize = 1L * 1024 * 1024 * 1024; // 1GB in bytes
+
+            if (file.Length > maxFileSize)
+                return BadRequest("File size exceeds the 1GB limit.");
+
+            var allowedMimeTypes = new[]
+            {
+                "video/mp4",
+                "video/webm",
+            };
+
+            var allowedExtensions = new[]
+            {
+                ".mp4", ".webm"
+            };
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+                return BadRequest("Only video files are allowed (invalid extension).");
+
+            if (!allowedMimeTypes.Contains(file.ContentType))
+                return BadRequest("Only video files are allowed (invalid content type).");
 
             var container = _blobServiceClient.GetBlobContainerClient("videos");
             var blob = container.GetBlobClient(file.FileName);
 
-            using (var stream = file.OpenReadStream()) {
-                await blob.UploadAsync(stream, true);
+            using (var stream = file.OpenReadStream())
+            {
+                await blob.UploadAsync(stream, overwrite: true);
             }
-
-            // Save metadata in the database (title, description, etc.)
-            // do this later
 
             return RedirectToAction("Index");
         }
@@ -93,6 +127,28 @@ namespace VideoPlatform.Web.Controllers {
 
         [HttpPost]
         public async Task<IActionResult> UploadEditedVideo(IFormFile file) {
+            if (file == null || file.Length == 0)
+                return BadRequest("Please select a file.");
+
+            var allowedMimeTypes = new[]
+            {
+                "video/mp4",
+                "video/webm",
+            };
+
+            var allowedExtensions = new[]
+            {
+                ".mp4", ".webm"
+            };
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+                return BadRequest("Only video files are allowed (invalid extension).");
+
+            if (!allowedMimeTypes.Contains(file.ContentType))
+                return BadRequest("Only video files are allowed (invalid content type).");
+
             var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
             var blob = container.GetBlobClient(file.FileName);
 
@@ -106,7 +162,7 @@ namespace VideoPlatform.Web.Controllers {
         [HttpPost]
         public async Task<IActionResult> DeleteVideo(string data) {
             try {
-                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+                var container = _blobServiceClient.GetBlobContainerClient("videos");
 
                 var blob = container.GetBlobClient(data);
 
@@ -117,6 +173,50 @@ namespace VideoPlatform.Web.Controllers {
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
+                return View("Error", new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePublishedVideo(string data)
+        {
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+
+                var blob = container.GetBlobClient(data);
+
+                if (await blob.ExistsAsync())
+                {
+                    await blob.DeleteIfExistsAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return View("Error", new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteEditedVideo(string data)
+        {
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
+
+                var blob = container.GetBlobClient(data);
+
+                if (await blob.ExistsAsync())
+                {
+                    await blob.DeleteIfExistsAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
                 return View("Error", new { message = ex.Message });
             }
         }

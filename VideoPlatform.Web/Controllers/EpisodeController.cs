@@ -57,7 +57,7 @@ namespace VideoPlatform.Web.Controllers
         {
             var editedVideoList = await GetEditedVideoList("editedvideos");
             var seasons = await _seasonRepository.GetAllSeasonsAsync(); 
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View();
         }
@@ -97,7 +97,7 @@ namespace VideoPlatform.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -116,7 +116,7 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description", episode.seasonId);
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description", episode.SeasonId);
             var editedVideoList = await GetEditedVideoList("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
@@ -127,7 +127,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,seasonId")] Episode episode)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,SeasonId")] Episode episode)
         {
             if (id != episode.Id)
             {
@@ -154,7 +154,7 @@ namespace VideoPlatform.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description", episode.seasonId);
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description", episode.SeasonId);
             var editedVideoList = await GetEditedVideoList("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);

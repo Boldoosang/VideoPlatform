@@ -38,7 +38,7 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
 
         public async Task<IEnumerable<Episode>> GetStandaloneEpisodesAsync() {
-            return await _context.Episodes.Where(e => e.seasonId == null).ToListAsync();
+            return await _context.Episodes.Where(e => e.SeasonId == null).ToListAsync();
         }
 
         public async Task<bool> EpisodeExists(int episodeId) {
