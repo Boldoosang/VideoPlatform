@@ -19,13 +19,11 @@ namespace VideoPlatform.Infrastructure {
             optionsBuilder.UseSqlServer(sqlServerOptionsAction: options => options.EnableRetryOnFailure());
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
-            //modelBuilder.Entity<test>()
-            //    .HasKey(t => t.ID);
-
-            //modelBuilder.Entity<test>()
-            //    .HasIndex(t => t.ID)
-            //    .IsUnique();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Season>()
+                .HasIndex(s => s.SeasonNumber)
+                .IsUnique();
         }
     }
 }

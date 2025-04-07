@@ -1,53 +1,64 @@
 ﻿@model VideoPlatform.Domain.Models.Season
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Season";
 }
 
-<h1>Create</h1>
+<div class="container py-4">
+    <div class="text-center text-light mb-4">
+        <h2 class="fw-bold">Create Season</h2>
+        <p class="lead text-muted">Add a new season by filling out the form below.</p>
+    </div>
 
-<h4>Season</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="SeasonNumber" class="control-label"></label>
-                <input asp-for="SeasonNumber" class="form-control" />
-                <span asp-validation-for="SeasonNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReleaseDate" class="control-label"></label>
-                <input asp-for="ReleaseDate" class="form-control" />
-                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsPublished" /> @Html.DisplayNameFor(model => model.IsPublished)
+    <form asp-action="Create" class="row">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3 col-12 col-md-4">
+            <label asp-for="Title" class="form-label fw-semibold text-light">Title</label>
+            <input asp-for="Title" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-4">
+            <label asp-for="SeasonNumber" class="form-label fw-semibold text-light">Season Number</label>
+            <input asp-for="SeasonNumber" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="SeasonNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-4">
+            <label asp-for="ReleaseDate" class="form-label fw-semibold text-light">Release Date</label>
+            <input asp-for="ReleaseDate" type="date" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="ReleaseDate" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12">
+            <label asp-for="Description" class="form-label fw-semibold text-light">Description</label>
+            <textarea asp-for="Description" rows="3" class="form-control bg-dark text-light border-secondary"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-6">
+            <div class="form-check form-switch">
+                <input class="form-check-input" asp-for="IsPublished" id="isPublished" />
+                <label class="form-check-label text-light fw-semibold" for="isPublished">
+                    Published
                 </label>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div class="d-flex justify-content-start mt-3">
+            <button type="submit" class="btn btn-success rounded me-2 px-5">
+                <i class="bi bi-plus-circle me-1"></i> Create Season
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light px-3">
+                Back to List
+            </a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

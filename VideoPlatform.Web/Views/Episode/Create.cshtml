@@ -1,60 +1,76 @@
 ﻿@model VideoPlatform.Domain.Models.Episode
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Episode";
 }
 
-<h1>Create</h1>
+<div class="container py-4">
+    <div class="text-center text-light mb-4">
+        <h2 class="fw-bold">Create Episode</h2>
+        <p class="lead text-muted">Enter details for the new episode below.</p>
+    </div>
 
-<h4>Episode</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PublishDate" class="control-label"></label>
-                <input asp-for="PublishDate" class="form-control" />
-                <span asp-validation-for="PublishDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FilePath" class="control-label"></label>
-                <select asp-for="FilePath" class="form-control" asp-items="ViewBag.editedVideoList">
-                    <option>Select an Edited Video</option>
-                </select>
-            </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsPublished" /> @Html.DisplayNameFor(model => model.IsPublished)
+    <form asp-action="Create" class="row">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+        <div class="mb-3 col-12 col-md-6">
+            <label asp-for="Title" class="form-label fw-semibold text-light">Title</label>
+            <input asp-for="Title" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-6">
+            <label asp-for="SeasonId" class="form-label fw-semibold text-light">Season</label>
+            <select asp-for="SeasonId" class="form-select bg-dark text-light border-secondary" asp-items="ViewBag.SeasonId">
+                <option value="">Standalone Episode</option>
+            </select>
+            <span asp-validation-for="SeasonId" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12">
+            <label asp-for="Description" class="form-label fw-semibold text-light">Description</label>
+            <textarea asp-for="Description" rows="3" class="form-control bg-dark text-light border-secondary"></textarea>
+            <span asp-validation-for="Description" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-6">
+            <label asp-for="FilePath" class="form-label fw-semibold text-light">Video File</label>
+            <select asp-for="FilePath" class="form-select bg-dark text-light border-secondary" asp-items="ViewBag.editedVideoList">
+                <option disabled selected>Select an Edited Video</option>
+            </select>
+            <span asp-validation-for="FilePath" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3 col-12 col-md-6">
+            <label asp-for="PublishDate" class="form-label fw-semibold text-light">Publish Date</label>
+            <input asp-for="PublishDate" type="date" class="form-control bg-dark text-light border-secondary" />
+            <span asp-validation-for="PublishDate" class="text-danger small"></span>
+        </div>
+
+        <!-- Published Switch Styling -->
+        <div class="mb-3 col-12 col-md-6">
+            <div class="form-check form-switch">
+                <input class="form-check-input" asp-for="IsPublished" id="isPublished" />
+                <label class="form-check-label text-light fw-semibold" for="isPublished">
+                    Published
                 </label>
             </div>
-            <div class="form-group">
-                <label asp-for="SeasonId" class="control-label"></label>
-                <select asp-for="SeasonId" class ="form-control" asp-items="ViewBag.SeasonId">
-                    <option value="">Standalone Episode</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <!-- Buttons: Consistent layout -->
+        <div class="d-flex justify-content-start mt-3">
+            <button type="submit" class="btn btn-primary rounded me-2 px-5">
+                <i class="bi bi-plus-circle me-1"></i> Create Episode
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light px-3">
+                Back to List
+            </a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -63,8 +63,15 @@ namespace VideoPlatform.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _seasonRepository.AddSeasonAsync(season);
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    await _seasonRepository.AddSeasonAsync(season);
+                    return RedirectToAction(nameof(Index));
+                } catch(DbUpdateException e)
+                {
+                    ModelState.AddModelError("SeasonNumber", "This season number is already taken.");
+                    return View(season);
+                }
             }
             return View(season);
         }
@@ -101,7 +108,16 @@ namespace VideoPlatform.Web.Controllers
             {
                 try
                 {
-                    await _seasonRepository.UpdateSeasonAsync(season);
+                    try
+                    {
+                        await _seasonRepository.UpdateSeasonAsync(season);
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        ModelState.AddModelError("SeasonNumber", "This season number is already taken.");
+                        return View(season);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
