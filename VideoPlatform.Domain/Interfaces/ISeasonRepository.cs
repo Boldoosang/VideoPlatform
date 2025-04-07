@@ -8,6 +8,7 @@ using VideoPlatform.Domain.Models;
 namespace VideoPlatform.Domain.Interfaces {
     public interface ISeasonRepository {
         Task<Season?> GetSeasonAsync(int SeasonId);
+        Task<Season?> GetSeasonAndEpisodesAsync(int SeasonId);
         Task<IEnumerable<Season>> GetAllSeasonsAsync();
         Task<IEnumerable<Season>> GetAllSeasonsAndEpisodesAsync();
         Task AddSeasonAsync(Season season);

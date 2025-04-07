@@ -42,6 +42,11 @@ namespace VideoPlatform.Infrastructure.Repositories {
             return await _context.Seasons.FirstOrDefaultAsync(v => v.Id == SeasonId);
         }
 
+        public async Task<Season?> GetSeasonAndEpisodesAsync(int SeasonId)
+        {
+            return await _context.Seasons.Include(s => s.Episodes).FirstOrDefaultAsync(v => v.Id == SeasonId);
+        }
+
         public async Task<bool> SeasonExists(int SeasonId) {
             return await _context.Seasons.AnyAsync(e => e.Id == SeasonId);
         }

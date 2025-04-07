@@ -127,7 +127,7 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
 
-            var season = await _seasonRepository.GetSeasonAsync(id.Value);
+            var season = await _seasonRepository.GetSeasonAndEpisodesAsync(id.Value);
 
             if (season == null)
             {

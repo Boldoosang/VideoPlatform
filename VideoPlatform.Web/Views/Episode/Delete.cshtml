@@ -4,54 +4,95 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<div class="container py-4">
+    <div class="text-center text-light mb-4">
+        <h2 class="fw-bold">Delete Episode</h2>
+        <p class="lead text-muted">Are you sure you want to delete this episode?</p>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Episode</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PublishDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PublishDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FilePath)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FilePath)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsPublished)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsPublished)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Season)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Season.Description)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
+        <div class="mb-4">
+            <div class="video-container mb-1">
+                @if (!string.IsNullOrEmpty(Model.FilePath))
+                {
+                    <video class="video-js mx-auto border "
+                           controls
+                           preload="auto"
+                           data-setup="{}">
+                        <source src="@Model.FilePath" type="video/mp4" />
+                        <p class="vjs-no-js">
+                            To view this video please enable JavaScript, and consider upgrading to a
+                            web browser that
+                            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                        </p>
+                    </video>
+                }
+                else
+                {
+                    <p class="text-muted">No video available for preview.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+
+    <div class="bg-dark text-light rounded">
+        <h4 class="fw-semibold">Episode Details</h4>
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-3">
+                Title
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+
+            <dt class="col-sm-3">
+                Description
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.Description)
+            </dd>
+
+            <dt class="col-sm-3">
+                Publish Date
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.PublishDate, "{0:MMMM dd, yyyy}")
+            </dd>
+
+            <dt class="col-sm-3">
+                Video Source
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.FilePath)
+            </dd>
+
+            <dt class="col-sm-3">
+                Published
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => model.IsPublished)
+            </dd>
+
+            <dt class="col-sm-3">
+                @Html.DisplayNameFor(model => model.Season)
+            </dt>
+            <dd class="col-sm-9">
+                @Html.DisplayFor(model => (model.Season.Title))
+            </dd>
+        </dl>
+    </div>
+
+    <form asp-action="Delete" class="mt-4">
         <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+
+        <div class="d-flex justify-content-start">
+            <button type="submit" class="btn btn-danger rounded me-2 px-5">
+                <i class="bi bi-trash me-1"></i> Delete
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light rounded px-3">
+                Back to List
+            </a>
+        </div>
     </form>
 </div>
