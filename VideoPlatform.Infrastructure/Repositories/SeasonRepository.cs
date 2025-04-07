@@ -33,6 +33,11 @@ namespace VideoPlatform.Infrastructure.Repositories {
             return await _context.Seasons.ToListAsync();
         }
 
+        public async Task<IEnumerable<Season>> GetAllSeasonsAndEpisodesAsync()
+        {
+            return await _context.Seasons.Include(s => s.Episodes).ToListAsync();
+        }
+
         public async Task<Season?> GetSeasonAsync(int SeasonId) {
             return await _context.Seasons.FirstOrDefaultAsync(v => v.Id == SeasonId);
         }

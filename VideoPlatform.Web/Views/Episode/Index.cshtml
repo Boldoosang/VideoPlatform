@@ -15,8 +15,8 @@
         <table id="episodeTable" class="table table-dark table-striped table-hover align-middle mb-0 w-100">
             <thead class="bg-secondary text-light">
                 <tr>
-                    <th style="width: 200px;">Title</th>
-                    <th style="width: 300px;">Description</th>
+                    <th>Title</th>
+                    <th>Description</th>
                     <th class="text-center">Season</th>
                     <th>Publish Date</th>
                     <th class="text-center">Published</th>
@@ -28,7 +28,6 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdn.datatables.net/2.1.1/js/dataTables.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             new DataTable('#episodeTable', {

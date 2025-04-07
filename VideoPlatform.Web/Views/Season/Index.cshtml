@@ -1,53 +1,96 @@
-﻿@model IEnumerable<VideoPlatform.Domain.Models.Season>
-
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Season Management";
 }
 
-<h1>Index</h1>
+<div class="container">
+    <div class="text-center text-light pb-5 pt-3">
+        <h2 class="display-4 fw-bold">Season Management</h2>
+        <p class="lead">Manage the seasons available on the platform.</p>
+        <a asp-action="Create" class="btn btn-primary rounded-pill px-5 mt-2 mb-0">
+            <i class="bi bi-collection-play me-1"></i> Create New Season
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.SeasonNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ReleaseDate)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.SeasonNumber)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ReleaseDate)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    <div class="table-responsive">
+        <table id="seasonTable" class="table table-dark table-striped table-hover align-middle mb-0 w-100">
+            <thead class="bg-secondary text-light">
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Release Date</th>
+                    <th>Episodes</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new DataTable('#seasonTable', {
+                ajax: {
+                    url: '/api/seasons',
+                    dataSrc: 'data'
+                },
+                responsive: true,
+                info: false, // Remove "Showing entries"
+                columns: [
+                    {
+                        data: 'seasonNumber',
+                        className: 'text-start'
+                    },
+                    {
+                        data: 'title',
+                        className: 'text-start',
+                        render: function (data) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 200px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'description',
+                        className: 'text-start',
+                        render: function (data) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'releaseDate',
+                        className: 'text-start',
+                        render: function (data) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                        }
+                    },
+                    {
+                        data: 'episodeCount',
+                        className: 'text-start',
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-end',
+                        render: function (data) {
+                            return `
+                                <a href="/Season/Edit/${data}" class="btn btn-success btn-sm me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a href="/Season/Details/${data}" class="btn btn-primary btn-sm me-1">
+                                    <i class="bi bi-info-circle"></i> Details
+                                </a>
+                                <a href="/Season/Delete/${data}" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash3"></i> Delete
+                                </a>`;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
 }
-    </tbody>
-</table>
+
