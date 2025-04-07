@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using VideoPlatform.Domain.DTOs;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Domain.Models;
 using VideoPlatform.Infrastructure;
@@ -194,6 +195,26 @@ namespace VideoPlatform.Web.Controllers
         private async Task<bool> EpisodeExists(int id)
         {
             return await _episodeRepository.EpisodeExists(id);
+        }
+
+        [HttpGet("api/episodes")]
+        [Authorize]
+        public async Task<IActionResult> GetAllEpisodes()
+        {
+            var episodes = await _episodeRepository.GetAllEpisodesAsync();
+
+            var episodeDTOs = episodes.Select(e => new EpisodeDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                PublishDate = e.PublishDate,
+                FilePath = e.FilePath,
+                IsPublished = e.IsPublished,
+                SeasonTitle = e.Season?.Description ?? "No Title"
+            });
+
+            return new JsonResult(new { data = episodeDTOs });
         }
     }
 }

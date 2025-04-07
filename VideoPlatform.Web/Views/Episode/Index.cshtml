@@ -1,6 +1,4 @@
-﻿@model IEnumerable<VideoPlatform.Domain.Models.Episode>
-
-@{
+﻿@{
     ViewData["Title"] = "Episode Management";
 }
 
@@ -13,69 +11,87 @@
         </a>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info text-center">
-            No episodes found.
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table table-dark table-striped table-hover align-middle mb-0">
-                <thead class="bg-secondary text-light">
-                    <tr>
-                        <th style="width: 200px;">Title</th>
-                        <th style="width: 300px;">Description</th>
-                        <th class="text-center">Season</th>
-                        <th>Publish Date</th>
-                        <th class="text-center">Published</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+    <div class="table-responsive">
+        <table id="episodeTable" class="table table-dark table-striped table-hover align-middle mb-0 w-100">
+            <thead class="bg-secondary text-light">
+                <tr>
+                    <th style="width: 200px;">Title</th>
+                    <th style="width: 300px;">Description</th>
+                    <th class="text-center">Season</th>
+                    <th>Publish Date</th>
+                    <th class="text-center">Published</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/2.1.1/js/dataTables.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new DataTable('#episodeTable', {
+                ajax: {
+                    url: '/api/episodes',
+                    dataSrc: 'data'
+                },
+                responsive: true,
+                columns: [
                     {
-                        <tr>
-                            <td>
-                                <span class="d-inline-block text-truncate" style="max-width: 200px;" title="@item.Title">
-                                    @item.Title
-                                </span>
-                            </td>
-                            <td>
-                                <span class="d-inline-block text-truncate" style="max-width: 300px;" title="@item.Description">
-                                    @item.Description
-                                </span>
-                            </td>
-                            <td class="text-center">@item.Season?.SeasonNumber</td>
-                            <td>@item.PublishDate.ToString("MMM dd, yyyy")</td>
-                            <td class="text-center">
-                                @if (item.IsPublished)
-                                {
-                                    <span class="badge bg-success">Yes</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">No</span>
-                                }
-                            </td>
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-primary btn-sm me-1">
+                        data: 'title',
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 200px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'description',
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'seasonTitle',
+                        className: 'text-center'
+                    },
+                    {
+                        data: 'publishDate',
+                        render: function (data) {
+                            const date = new Date(data);
+                            return date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                        }
+                    },
+                    {
+                        data: 'isPublished',
+                        className: 'text-center',
+                        render: function (data) {
+                            return data
+                                ? `<span class="badge bg-success">Yes</span>`
+                                : `<span class="badge bg-danger">No</span>`;
+                        }
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-end',
+                        render: function (data, type, row) {
+                            return `
+                                <a href="/Episode/Details/${data}" class="btn btn-primary btn-sm me-1">
                                     <i class="bi bi-info-circle"></i> Details
                                 </a>
-                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success btn-sm me-1">
+                                <a href="/Episode/Edit/${data}" class="btn btn-success btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                                <a href="/Episode/Delete/${data}" class="btn btn-danger btn-sm">
                                     <i class="bi bi-trash3"></i> Delete
-                                </a>
-                            </td>
-                        </tr>
+                                </a>`;
+                        }
                     }
-                </tbody>
-            </table>
-
-
-        </div>
-    }
-</div>
+                ]
+            });
+        });
+    </script>
+}

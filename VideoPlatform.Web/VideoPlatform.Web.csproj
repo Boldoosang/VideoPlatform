@@ -40,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\lib\datatables\" />
     <Folder Include="wwwroot\lib\video-js\" />
   </ItemGroup>
 
