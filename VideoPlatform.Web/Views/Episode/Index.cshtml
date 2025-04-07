@@ -17,7 +17,7 @@
                 <tr>
                     <th>Title</th>
                     <th>Description</th>
-                    <th class="text-center">Season</th>
+                    <th>Season</th>
                     <th>Publish Date</th>
                     <th class="text-center">Published</th>
                     <th class="text-end">Actions</th>
@@ -51,26 +51,29 @@
                     },
                     {
                         data: 'seasonTitle',
-                        className: 'text-center'
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${data}">${data}</span>`;
+                        }
                     },
                     {
                         data: 'publishDate',
                         render: function (data) {
                             const date = new Date(data);
-                            return date.toLocaleDateString('en-US', {
+                            var finalDate =  date.toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric'
                             });
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${finalDate}">${finalDate}</span>`;
                         }
                     },
                     {
                         data: 'isPublished',
-                        className: 'text-center',
                         render: function (data) {
                             return data
-                                ? `<span class="badge bg-success">Yes</span>`
-                                : `<span class="badge bg-danger">No</span>`;
+                                ? `<span class="badge bg-success d-inline-block text-truncate" style="max-width: 300px;">Yes</span>`
+                                : `<span class="badge bg-danger d-inline-block text-truncate" style="max-width: 300px;">No</span>`;
+
                         }
                     },
                     {
@@ -78,8 +81,8 @@
                         className: 'text-end',
                         render: function (data, type, row) {
                             return `
-                                <a href="/Episode/Details/${data}" class="btn btn-primary btn-sm me-1">
-                                    <i class="bi bi-info-circle"></i> Details
+                                <a href="/Episode/Watch/${data}" class="btn btn-primary btn-sm me-1">
+                                    <i class="bi bi-info-circle"></i> View
                                 </a>
                                 <a href="/Episode/Edit/${data}" class="btn btn-success btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Edit

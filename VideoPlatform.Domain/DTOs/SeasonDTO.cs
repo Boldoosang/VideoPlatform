@@ -13,6 +13,8 @@ namespace VideoPlatform.Domain.DTOs
         public required string Title { get; set; }
         public required string Description { get; set; }
         public required DateTime ReleaseDate { get; set; }
+
+        public required bool IsPublished { get; set; }
         public int EpisodeCount { get; set; }
     }
 }

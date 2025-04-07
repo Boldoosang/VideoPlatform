@@ -36,7 +36,7 @@ namespace VideoPlatform.Web.Controllers
         }
 
         // GET: Episode/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Watch(int? id)
         {
             if (id == null)
             {
@@ -50,7 +50,25 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
 
-            return View(episode);
+
+            if (!episode.IsPublished)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    ViewBag.ViewingAsAdmin = true;
+                } else
+                {
+                    return NotFound();
+                }
+            }
+
+            EpisodePlaybackDTO episodePlaybackDTO = new EpisodePlaybackDTO
+            {
+                CurrentEpisode = episode,
+                RelatedEpisodes = (await _episodeRepository.GetAllEpisodesAsync()).Where(e => e.IsPublished)
+                    .ToList()
+            };
+            return View(episodePlaybackDTO);
         }
 
         // GET: Episode/Create
@@ -58,7 +76,7 @@ namespace VideoPlatform.Web.Controllers
         {
             var editedVideoList = await GetEditedVideoList("editedvideos");
             var seasons = await _seasonRepository.GetAllSeasonsAsync(); 
-            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View();
         }
@@ -88,7 +106,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,PublishDate,FilePath,IsPublished")] Episode episode)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,SeasonId")] Episode episode)
         {
             var editedVideoList = await GetEditedVideoList("editedvideos");
 
@@ -98,7 +116,7 @@ namespace VideoPlatform.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -117,7 +135,7 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description", episode.SeasonId);
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
             var editedVideoList = await GetEditedVideoList("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
@@ -155,7 +173,7 @@ namespace VideoPlatform.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Description", episode.SeasonId);
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
             var editedVideoList = await GetEditedVideoList("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
@@ -211,7 +229,7 @@ namespace VideoPlatform.Web.Controllers
                 PublishDate = e.PublishDate,
                 FilePath = e.FilePath,
                 IsPublished = e.IsPublished,
-                SeasonTitle = e.Season?.Description ?? "No Title"
+                SeasonTitle = e.Season?.Title ?? "Standalone Episode"
             });
 
             return new JsonResult(new { data = episodeDTOs });

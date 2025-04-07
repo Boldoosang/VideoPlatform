@@ -59,7 +59,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SeasonNumber,Title,Description,ReleaseDate")] Season season)
+        public async Task<IActionResult> Create([Bind("Id,SeasonNumber,Title,Description,ReleaseDate,IsPublished")] Season season)
         {
             if (ModelState.IsValid)
             {
@@ -90,7 +90,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonNumber,Title,Description,ReleaseDate")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonNumber,Title,Description,ReleaseDate,IsPublished")] Season season)
         {
             if (id != season.Id)
             {
@@ -169,7 +169,8 @@ namespace VideoPlatform.Web.Controllers
                 Description = s.Description,
                 ReleaseDate = s.ReleaseDate,
                 SeasonNumber = s.SeasonNumber,
-                EpisodeCount = s.Episodes?.Count() ?? 0
+                EpisodeCount = s.Episodes?.Count() ?? 0,
+                IsPublished = s.IsPublished
             });
 
             return new JsonResult(new { data = seasonDTO });

@@ -3,48 +3,6 @@
     ViewData["Title"] = "Published Video Library";
 }
 
-<!-- Make sure the script is placed after all elements in the body -->
-<script>
-    // JavaScript function to capture a frame and display it as a thumbnail
-    function captureThumbnail(videoId, episodeId) {
-        var video = document.getElementById(videoId);
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-
-        // Wait for the video to be ready and playable
-        video.oncanplaythrough = function () {
-            // Set the canvas size (adjust as needed)
-            canvas.width = 480;
-            canvas.height = 270;
-
-            // Draw the current video frame onto the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear before drawing
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-            // Convert canvas to an image source and set it as the thumbnail
-            var img = new Image();
-            img.src = canvas.toDataURL('image/jpeg');
-
-            // Once the image is loaded, update the thumbnail on the page
-            img.onload = function () {
-                document.getElementById('thumbnail-' + episodeId).src = img.src;
-            };
-        };
-
-        // Play the video briefly to trigger the thumbnail capture
-        video.play();
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        // Bind the captureThumbnail function to each video element
-        var videoElements = document.querySelectorAll('video');
-        videoElements.forEach(function (videoElement) {
-            var episodeId = videoElement.id.split('-')[1];
-            captureThumbnail(videoElement.id, episodeId);
-        });
-    });
-</script>
-
 <div class="container text-center text-light pb-5 pt-3">
     <h2 class="display-4 fw-bold">Published Video Library</h2>
     <p class="lead">Browse through seasons and standalone episodes available for viewing.</p>
@@ -58,25 +16,19 @@
         @foreach (var season in Model.Seasons)
         {
             <div class="p-4 mb-4 border rounded-3 shadow-sm bg-dark">
-                <h3 class="text-light fw-bold">Season @season.Title</h3>
+                <h3 class="text-light fw-bold">@season.Title</h3>
                 <p class="text-muted">@season.Description</p>
 
                 @if (season.Episodes != null && season.Episodes.Any())
                 {
                     <div class="row">
-                        @foreach (var episode in season.Episodes)
+                        @foreach (var episode in season.Episodes.Where(e => e.IsPublished))
                         {
                             <div class="col-12 col-md-4 mb-4">
                                 <div class="card shadow-lg border-0 rounded-3">
                                     <div class="card-body d-flex flex-column p-0">
-                                        <!-- Hidden Video Element for Thumbnail Generation -->
-                                        <video id="video-@episode.Id" class="d-none" preload="auto">
-                                            <source src="@episode.FilePath" type="video/mp4" />
-                                        </video>
-
-                                        <!-- Generated Thumbnail Image -->
-                                        <a href="@Url.Action("Player", "Video", new { id = episode.Id })">
-                                            <img id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
+                                        <a href="@Url.Action("Watch", "Episode", new { id = episode.Id })">
+                                            <img src='https://www.shutterstock.com/image-vector/colored-modern-background-style-social-260nw-1752679094.jpg' id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
                                         </a>
                                         <div class="p-3 flex-grow-1">
                                             <h5 class="card-title mt-2 mb-0 text-light">@episode.Title</h5>
@@ -116,14 +68,8 @@
                     <div class="col-12 col-md-4 mb-4">
                         <div class="card shadow-lg border-0 rounded-3">
                             <div class="card-body d-flex flex-column p-0">
-                                <!-- Hidden Video Element for Thumbnail Generation -->
-                                <video id="video-@episode.Id" class="d-none" preload="auto">
-                                    <source src="@episode.FilePath" type="video/mp4" />
-                                </video>
-
-                                <!-- Generated Thumbnail Image -->
-                                <a href="@Url.Action("Player", "Video", new { id = episode.Id })">
-                                    <img id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
+                                <a href="@Url.Action("Watch", "Episode", new { id = episode.Id })">
+                                    <img src='https://www.shutterstock.com/image-vector/colored-modern-background-style-social-260nw-1752679094.jpg' id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
                                 </a>
                                 <div class="p-3 flex-grow-1">
                                     <h5 class="card-title mt-2 mb-0 text-light">@episode.Title</h5>
