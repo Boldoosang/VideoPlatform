@@ -42,6 +42,7 @@
   <ItemGroup>
     <Folder Include="wwwroot\lib\datatables\" />
     <Folder Include="wwwroot\lib\video-js\" />
+    <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
 </Project>
