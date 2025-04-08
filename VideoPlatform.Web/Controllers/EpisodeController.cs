@@ -36,6 +36,7 @@ namespace VideoPlatform.Web.Controllers
         }
 
         // GET: Episode/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Watch(int? id)
         {
             if (id == null)
