@@ -27,13 +27,13 @@ jobs:
         run: dotnet build ./Web/Web.csproj --configuration Release --no-restore
 
       - name: Publish Web project
-        run: dotnet publish ./Web/Web.csproj -c Release -o ./publish --no-build
+        run: dotnet publish ./Web/Web.csproj -c Release -o ${{ env.DOTNET_ROOT }}/myapp --no-build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ./publish
+          path: ${{ env.DOTNET_ROOT }}/myapp
 
   deploy:
     runs-on: ubuntu-latest
@@ -42,8 +42,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write # Required for requesting the JWT
-      contents: read  # Required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
