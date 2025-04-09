@@ -62,7 +62,13 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<VideoPlatformContext>();
-    db.Database.Migrate();
+    try
+    {
+        db.Database.Migrate();
+    } catch(Exception e)
+    {
+        Console.Out.WriteLine(e.Message);
+    }
 }
 
 app.Run();
