@@ -7,7 +7,6 @@ using VideoPlatform.Domain.DTOs;
 using VideoPlatform.Web.Models;
 
 namespace VideoPlatform.Web.Controllers {
-    [Authorize]
     public class HomeController : Controller {
         private readonly ILogger<HomeController> _logger;
         private readonly IEpisodeRepository _episodeRepository;
@@ -19,6 +18,7 @@ namespace VideoPlatform.Web.Controllers {
             _seasonRepository = seasonRepository;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index() {
             var episodes = await _episodeRepository.GetAllEpisodesAsync();
             var publishedEpisodes = episodes
@@ -37,7 +37,8 @@ namespace VideoPlatform.Web.Controllers {
             return View(publishedVideoListingDTO);
         }
 
-        public IActionResult Privacy() {
+        [AllowAnonymous]
+        public IActionResult Documentation() {
             return View();
         }
 

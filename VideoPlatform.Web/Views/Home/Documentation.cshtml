@@ -1,0 +1,643 @@
+﻿@{
+    ViewData["Title"] = "Technical Documentation";
+}
+
+<div>
+    <div>
+        <h2 class="mb-0">Video Platform</h2>
+        <em class="text-muted font-italic d-block mb-2 mt-1">Ongoing Development (Initial Design: 3rd April 2025)</em>
+        <hr class=" my-2 border" />
+    </div>
+    <div class="mb-4 border border-2 border-primary rounded p-1 p-md-2">
+        <h3 class="mt-0">Introduction</h3>
+        <h5 class="mb-1">Problem Scope</h5>
+        <p>
+            Preparing video content from Microsoft Teams recordings for public viewing is a repetitive and time-consuming process. Administrators are often required to download meeting recordings, manually edit them using third-party tools, and reupload them to various platforms for consumption. This multi-step process introduces inefficiencies and increases the time required to deliver content. There is currently no unified platform to streamline this workflow for organizations looking to publish regular video updates to the public.
+        </p>
+
+        <h5 class="mb-1">System Goals</h5>
+        <p>
+            The solution aims to deliver a .NET 8 web-based video platform that enables authenticated administrators to upload, edit, and publish video episodes pulled from Microsoft Teams recordings. Videos can be trimmed and enhanced with transitions and overlays through an integrated video editor, and published to a publicly accessible page. The platform will support the creation of seasons and episodes, metadata management, and secure role-based access for content management.
+        </p>
+
+        <h5 class="mb-1">System Evolution</h5>
+        <p>
+            The system should be able to evolve to include features such as AI-powered content summarization, automated transcription, and scheduling of episode releases. In addition, the video editor should be able to be swapped out for a more feature riched video editor; either developed in-house or 3rd party.
+        </p>
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-warning p-1 p-md-2">
+        <h3>Definitions, Acronyms, and Abbreviations</h3>
+        <p>
+            The following is a list of terms, and their definitions, and which may be used throughout this write-up.
+        </p>
+
+        <table class="table table-hover table-borderless">
+            <tbody>
+                <tr>
+                    <th>ADMIN</th>
+                    <td>A user with elevated permissions who can upload, edit, and publish video content to the platform.</td>
+                </tr>
+                <tr>
+                    <th>AZURE BLOB STORAGE</th>
+                    <td>Microsoft’s object storage solution used for storing video files in the cloud.</td>
+                </tr>
+                <tr>
+                    <th>EPISODE</th>
+                    <td>An individual video unit published on the platform, typically representing a single meeting or presentation.</td>
+                </tr>
+                <tr>
+                    <th>JSON</th>
+                    <td>JavaScript Object Notation; a lightweight data-interchange format used to store structured data such as video design objects.</td>
+                </tr>
+                <tr>
+                    <th>MICROSOFT TEAMS</th>
+                    <td>A communication platform used for virtual meetings; source of the original recordings uploaded to the system.</td>
+                </tr>
+                <tr>
+                    <th>MVC</th>
+                    <td>Model-View-Controller; a software architectural pattern used in building the application.</td>
+                </tr>
+                <tr>
+                    <th>RENDERING</th>
+                    <td>The process of compiling and exporting an edited video based on design input, overlays, and trim selections.</td>
+                </tr>
+                <tr>
+                    <th>SEASON</th>
+                    <td>A logical grouping of episodes, typically representing a period, series, or thematic collection.</td>
+                </tr>
+                <tr>
+                    <th>TRIM</th>
+                    <td>The process of cutting parts of a video to remove unwanted content before publishing.</td>
+                </tr>
+                <tr>
+                    <th>VIDEO EDITOR</th>
+                    <td>The built-in frontend interface that allows admins to apply edits such as trimming, transitions, and overlays to uploaded videos.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-info p-1 p-md-2">
+        <h3>Project Overview</h3>
+        <h5 class="mb-1">Solution Description</h5>
+        <p>
+            The Public Power Hour Video Platform is a web-based application designed to streamline the process of preparing and publishing Microsoft Teams recordings for public viewing. Administrators are able to authenticate using Azure AD, import recorded sessions, and use the platform’s integrated video editor to manipulate and upload videos. Episodes can then be published to the public without the need for external video processing tools. The platform supports the organization of videos into seasons and provides a management dashboard for creating, editing, and deleting episodes.
+        </p>
+
+        <h5 class="mb-1">Assumptions and Dependencies</h5>
+        <p>
+            The following is a list of assumptions and dependencies that were considered in development:
+            <ol class="list-group-numbered list-group list-group-flush">
+                <li class="list-group-item">
+                    Users of the system with admin access are trusted to manage video content responsibly.
+                </li>
+                <li class="list-group-item">
+                    Microsoft Teams recordings are accessible and authorized for import into the platform.
+                </li>
+                <li class="list-group-item">
+                    The application will be used within the storage and bandwidth limits of the selected Azure hosting plan.
+                </li>
+                <li class="list-group-item">
+                    The application will be developed in .NET 8 using Entity Framework Core and maintained under the same technology stack.
+                </li>
+                <li class="list-group-item">
+                    The platform will continue to be compatible with Azure Blob Storage and authentication via Azure Active Directory.
+                </li>
+            </ol>
+        </p>
+    </div>
+
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-success p-1 p-md-2">
+        <h3>Specification Requirements</h3>
+        <div class="mb-4">
+            <h5>Functional Requirements</h5>
+            <p class="mb-1">The following is a list of the functional requirements of the application:</p>
+            <ol class="list-group-numbered list-group list-group-flush">
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow authenticated admin users to login using Azure Active Directory.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admin users to upload video content from their device, or from Microsoft Teams.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admin users to create/read/update/delete episodes.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admin users to group episodes into seasons.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admin users to edit video content using a browser-based editor.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> support trimming, merging, and text overlays within the video editor.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admins to preview video edits before publishing.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> store and stream videos via Azure Blob Storage.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow the public to view published episodes without requiring authentication.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> allow admin users to update metadata associated with videos (e.g., title, description, date).
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> provide an administrative dashboard to manage episodes and seasons.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-success fw-bold">shall</span> restrict editing and publishing privileges to users with the Admin role.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-warning fw-bold">should</span> support drag-and-drop editing for ease of use within the browser-based video editor.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-warning fw-bold">should</span> allow integration with third-party open-source video processing services.
+                </li>
+            </ol>
+        </div>
+
+
+        <hr class="border mt-4" />
+
+        <div>
+            <h5>Non-Functional Requirements</h5>
+            <p class="mb-1">The following is a list of the non-functional requirements of the application:</p>
+            <ol class="list-group-numbered list-group list-group-flush">
+                <li class="list-group-item">
+                    The application <span class="text-success fw-bold">shall</span> have a user friendly and responsive interface for desktop devices.
+                </li>
+                <li class="list-group-item">
+                    The application <span class="text-success fw-bold">shall</span> utilize the Model-View-Controller design pattern to maintain separation of concerns.
+                </li>
+                <li class="list-group-item">
+                    The application <span class="text-success fw-bold">shall</span> notify users of errors, successes, and warnings with clearly styled alerts and messages.
+                </li>
+                <li class="list-group-item">
+                    The application <span class="text-success fw-bold">shall</span> redirect unauthorized users to the login page when accessing restricted features.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-warning fw-bold">should</span> not limit the number of videos an admin can manage within the platform.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-warning fw-bold">should</span> not limit the number of edits an admin can make to a video before publishing.
+                </li>
+                <li class="list-group-item">
+                    The system <span class="text-warning fw-bold">should</span> not limit the number of seasons or episodes that can be created.
+                </li>
+            </ol>
+        </div>
+
+        <hr class="border mt-4" />
+
+        <div class="border rounded border-secondary bg-body-tertiary p-2 mt-3">
+            <h4>Video Editor</h4>
+            <p>
+                This feature enables administrators to edit videos in the browser using an intuitive interface. Admins can trim, combine videos, and add text, before saving and publishing the modified video.
+            </p>
+
+            <h5>Stimulus/Response Sequence</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>Step 1</th>
+                        <td>The admin navigates to the video library or edited video library.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 2</th>
+                        <td>The admin selects the "edit" button for the corresponding video in the library.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 3</th>
+                        <td>The editor interface loads with controls for manipulating the video.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 4</th>
+                        <td>The admin edits the video and clicks save. The system renders and stores the final version to Azure Blob Storage.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Functional Requirements</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>REQ-1</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> provide an interactive video editor that supports trimming, combining videos, and adding text.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to load videos from the application's library, as well as their own device.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-3</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to save videos from the editor, to Azure Blob Storage.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="border mt-4" />
+
+        <div class="border rounded border-secondary bg-body-tertiary p-2 mt-3">
+            <h4>Episode Player</h4>
+            <p>
+                This feature enables the public to view published episodes through a web player. Admins can publish the episode, and viewers can watch videos without requiring authentication.
+            </p>
+
+            <h5>Stimulus/Response Sequence</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>Step 1</th>
+                        <td>The user navigates to the application homepage.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 2</th>
+                        <td>The user browses and selects an episode.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 3</th>
+                        <td>The video player is loaded with the selected episode.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 4</th>
+                        <td>The user can play, pause, and navigate through the video.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Functional Requirements</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>REQ-1</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> support embedding and playing videos using the videos stored in Azure Blob Storage.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow users to play, pause, and navigate through the video content.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="border mt-4" />
+
+        <div class="border rounded border-secondary bg-body-tertiary p-2 mt-3">
+            <h4>Season Management</h4>
+            <p>
+                This feature enables admins to manage video seasons, with each season containing multiple episodes. Admins can create, update, and delete seasons for organizational purposes.
+            </p>
+
+            <h5>Stimulus/Response Sequence</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>Step 1</th>
+                        <td>The admin visits the Season Management page.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 2</th>
+                        <td>The admin creates a new season or edits an existing one.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Functional Requirements</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>REQ-1</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to create, edit, and delete seasons.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to assign multiple episodes to a season.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-3</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> prevent users from deleting seasons with episodes.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-4</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> enable administrators to alter the publish date and publication status of the season.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="border mt-4" />
+
+        <div class="border rounded border-secondary bg-body-tertiary p-2 mt-3">
+            <h4>Episode Management</h4>
+            <p>
+                This feature enables admins to manage individual episodes within the seasons. Admins can create, edit, and delete episodes, and assign them to seasons.
+            </p>
+
+            <h5>Stimulus/Response Sequence</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>Step 1</th>
+                        <td>The admin visits the Episode Management page.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 2</th>
+                        <td>The admin creates a new episode or edits an existing one.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 3</th>
+                        <td>The admin assigns the episode to a season and saves the changes.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Functional Requirements</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>REQ-1</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to create, edit, and delete episodes.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to assign episodes to seasons, or publish as a standalone episode.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-3</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> enable administrators to alter the publish date and publication status of the episode.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-4</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> restrict users from viewing unpublished episodes, but shall allow administrators to view them.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr class="border mt-4" />
+
+        <div class="border rounded border-secondary bg-body-tertiary p-2 mt-3">
+            <h4>Library Management</h4>
+            <p>
+                This feature enables admins to manage all the videos in the platform's library. Admins can upload videos and delete videos that are no longer needed.
+            </p>
+
+            <h5>Stimulus/Response Sequence</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>Step 1</th>
+                        <td>The admin visits the Library Management page.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 2</th>
+                        <td>The admin uploads a new video, or the Microsoft Teams recording is automatically imported and is made available via Power Automate.</td>
+                    </tr>
+                    <tr>
+                        <th>Step 3</th>
+                        <td>The admin can delete videos that are no longer needed.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h5>Functional Requirements</h5>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <th>REQ-1</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to upload videos.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-success fw-bold">shall</span> allow admins to delete videos.</td>
+                    </tr>
+                    <tr>
+                        <th>REQ-2</th>
+                        <td>The system <span class="text-warning fw-bold">should</span> enable to automatic importing of Microsoft Teams channel meeting recordings.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-secondary p-1 p-md-2">
+
+        <h3>System Design</h3>
+        <h5>System Architecture</h5>
+        <p>The following is a depiction of the architecture behind the Video Platform.</p>
+        <img class="img-fluid border rounded border-secondary mb-3 w-100" src="/images/arch.png" />
+
+        <hr class="border mt-4" />
+
+        <h5>Database Design</h5>
+        <p>The following is a depiction of the class diagram design behind the Video Platform.
+        <img class="img-fluid border rounded border-secondary mb-3 w-100" src="/images/cd.png" />
+
+        <hr class="border mt-4" />
+
+        <h5>Use Cases</h5>
+        <p>The following is a depiction of the use cases of the application.</p>
+        <img class="img-fluid border rounded border-secondary mb-3 w-100" src="/images/uc.png" />
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-white p-1 p-md-2">
+        <h3>Interface Design</h3>
+        <h5>Design Properties</h5>
+        <p>The following is a list of design properties that were chosen for the application's components.</p>
+        <table class="table table-hover mb-3">
+            <thead>
+                <tr>
+                    <th>Design Component</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Primary Color</td>
+                    <td>Bootstrap .bg-dark</td>
+                </tr>
+                <tr>
+                    <td>Secondary Color</td>
+                    <td>Bootstrap .bg-dark-subtle</td>
+                </tr>
+                <tr>
+                    <td>Tertiary Color</td>
+                    <td>Bootstrap .bg-secondary</td>
+                </tr>
+                <tr>
+                    <td>Primary Font</td>
+                    <td>Bootstrap Default</td>
+                </tr>
+                <tr>
+                    <td>Primary Font Color</td>
+                    <td>Bootstrap .text-white</td>
+                </tr>
+                <tr>
+                    <td>Secondary Font</td>
+                    <td>Bootstrap Default</td>
+                </tr>
+                <tr>
+                    <td>Secondary Font Color</td>
+                    <td>Bootstrap .text-muted</td>
+                </tr>
+                <tr>
+                    <td>UI Library</td>
+                    <td>Bootstrap</td>
+                </tr>
+                <tr>
+                    <td>Heading Font Size</td>
+                    <td>Bootstrap Default</td>
+                </tr>
+                <tr>
+                    <td>Sub Heading Font Size</td>
+                    <td>Bootstrap Default</td>
+                </tr>
+                <tr>
+                    <td>Paragraph Font Size</td>
+                    <td>Bootstrap Default</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr class="border mt-4" />
+
+        <h5>Interface Wireframes</h5>
+        <p>The following diagram contains a series of wireframes that were created to envision the user interface.</p>
+        <img class="img-fluid border rounded border-secondary mb-3 w-100" src="/images/ui.png" />
+
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-primary p-1 p-md-2">
+        <h3>Chosen Technologies</h3>
+        <p class="mb-1">The following is a list of the technologies used within the project.</p>
+        <ul class="list-group mt-3">
+            <li class="list-group-item">
+                <h5>.NET Core 8.</h5>
+                <p>
+                    <p>
+                        .NET Core 8 is a web application framework developed by Microsoft, as a modular framework that runs on Windows, Linux, and macOS. It was chosen as the project as initially meant to serve as an exercise for exploring .NET 8.0, Entra, and Azure features. Consequently, the project was developed using the framework.
+                    </p>
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h5>Azure App Services</h5>
+                <p>
+                    <p>
+                        Azure App Services is a fully managed platform as a service (PaaS) for building, deploying, and scaling web apps and APIs. It was chosen as the hosting platform for the application due to its integration with Visual Studio 2022, and to maintain the Azure ecosystem for the app.
+                    </p>
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h5>Video Editor</h5>
+                <p>
+                    <p>
+                        Placeholder until I figure out which video editor I want to utilize.
+                    </p>
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h5><p>Azure MSSQL Database</p></h5>
+                <p>
+                    <p>
+                        Azure SQL Databases are a relational database-as-a-service (DBaaS) based on the latest stable version of Microsoft SQL Server Database Engine. It was chosen due to its seamless integration with the application through the Entity Framework Core's Object Relational Mapper (ORM), as well as the fact that it is a cloud based database that would allow for easy access and maintenance on Azure.
+                    </p>
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h5>Bootstrap 5.3</h5>
+                <p>
+                    Bootstrap is a free and open-source CSS framework directed at responsive, mobile-first front-end web development. It was chosen for its ease of use and its ability to provide a responsive design, as well as my previous experience with the framework. Additionally, .NET Core 8.0 already has the bootstrap boilerplate built in.
+                </p>
+            </li>
+            <li class="list-group-item">
+                <h5>DataTables.js</h5>
+                <p>
+                    DataTables.js is a plug-in for the jQuery JavaScript library that adds interactive and feature-rich tables to websites. It provides functionalities such as pagination, search, and sorting out of the box. I chose DataTables.js for its ease of implementation and its flexibility in handling dynamic table data, and its compatible with Bootstrap for consistent styling.
+                </p>
+            </li>
+
+            <li class="list-group-item">
+                <h5>jQuery</h5>
+                <p>
+                    jQuery is a JavaScript library designed to simplify HTML DOM tree traversal and manipulation, as well as event handling, CSS animation, and Ajax. It is a dependency of Bootstrap, and DataTables.
+                </p>
+            </li>
+        </ul>
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-success p-1 p-md-2">
+        <h3>Deliverables</h3>
+        <p class="mb-1">The following deliverables were produced as a result of the project.</p>
+
+        <div class="my-3">
+            <h5>Deployed Application</h5>
+            <a asp-action="Index" asp-controller="Home">Application Homepage</a>
+        </div>
+        <div class="mb-3">
+            <h5>Project Report</h5>
+            <a asp-action="Documentation" asp-controller="Home">Project Documentation</a>
+        </div>
+    </div>
+
+    <hr class="border mt-4" />
+
+    <div class="mb-4 border border-2 rounded border-danger p-1 p-md-2">
+        <h3>Testing</h3>
+        <p class="mb-1">The following tests were performed on the application.</p>
+        <table class="table table-hover mb-3">
+            <thead>
+                <tr>
+                    <th>Test Cases</th>
+                    <th></th>
+                    <th>Pass/Fail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>GT-01</td>
+                    <td>
+                        <p>
+                            <strong>Test Name:</strong> Test the login of an Administrator.
+                        </p>
+                        <p>
+                            <strong>Test Description:</strong> The Administrator should be able to login using their domain account.
+                        </p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Visit the home page.</li>
+                                <li>Click on the sign in button.</li>
+                                <li>Enter the Microsoft Entra/Domain credentials.</li>
+                                <li>Click on the login button.</li>
+                            </ol>
+                        </p>
+                        <p>
+                            <strong>Expected Result:</strong> The administrator should be redirected to the home page and be logged in, and should see the Admin tab in the navbar.
+                        </p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
