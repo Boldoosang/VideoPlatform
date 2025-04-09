@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "identityapp1": {
+      "connectionInfo": "App registration: VideoPlatform, Tenant: JustinBaldeosingh (justinbaldeosingh.onmicrosoft.com - Microsoft Entra ID)",
+      "type": "identityapp.default"
+    },
+    "storage1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/videoplatformph/providers/Microsoft.ServiceLinker/linkers/StorageConnection_81CC39F992, /subscriptions/b5510c51-ce92-42f0-9e18-c0da0f51aa8a/resourceGroups/videoplatform-ph/providers/Microsoft.Web/sites/videoplatformph/providers/Microsoft.ServiceLinker/linkers/StorageConnection_D4A6D982D9",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/videoplatformph",
+      "type": "storage.azure",
+      "connectionId": "StorageConnection",
+      "dynamicId": null
+    }
+  }
+}
