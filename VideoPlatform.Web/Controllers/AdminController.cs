@@ -106,7 +106,7 @@ namespace VideoPlatform.Web.Controllers {
         [HttpPost]
         public async Task<IActionResult> DeleteVideo(string data) {
             try {
-                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+                var container = _blobServiceClient.GetBlobContainerClient("videos");
 
                 var blob = container.GetBlobClient(data);
 
@@ -117,6 +117,50 @@ namespace VideoPlatform.Web.Controllers {
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
+                return View("Error", new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteEditedVideo(string data)
+        {
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
+
+                var blob = container.GetBlobClient(data);
+
+                if (await blob.ExistsAsync())
+                {
+                    await blob.DeleteIfExistsAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                return View("Error", new { message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeletePublishedVideos(string data)
+        {
+            try
+            {
+                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
+
+                var blob = container.GetBlobClient(data);
+
+                if (await blob.ExistsAsync())
+                {
+                    await blob.DeleteIfExistsAsync();
+                }
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
                 return View("Error", new { message = ex.Message });
             }
         }
