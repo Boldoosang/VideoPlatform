@@ -21,13 +21,13 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Restore dependencies
-        run: dotnet restore ./Web/Web.csproj
+        run: dotnet restore ./VideoPlatform.Web/VideoPlatform.Web.csproj
 
       - name: Build Web project
-        run: dotnet build ./Web/Web.csproj --configuration Release --no-restore
+        run: dotnet build ./VideoPlatform.Web/VideoPlatform.Web.csproj --configuration Release --no-restore
 
       - name: Publish Web project
-        run: dotnet publish ./Web/Web.csproj -c Release -o ${{ env.DOTNET_ROOT }}/myapp --no-build
+        run: dotnet publish ./VideoPlatform.Web/VideoPlatform.Web.csproj -c Release -o ${{ env.DOTNET_ROOT }}/myapp --no-build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
