@@ -27,13 +27,13 @@ jobs:
         run: dotnet build ./VideoPlatform.Web/VideoPlatform.Web.csproj --configuration Release --no-restore
 
       - name: Publish Web project
-        run: dotnet publish ./VideoPlatform.Web/VideoPlatform.Web.csproj -c Release -o ${{ env.DOTNET_ROOT }}/myapp --no-build
+        run: dotnet publish ./VideoPlatform.Web/VideoPlatform.Web.csproj -c Release -o ./publish --no-build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{ env.DOTNET_ROOT }}/myapp
+          path: ./publish
 
   deploy:
     runs-on: ubuntu-latest
