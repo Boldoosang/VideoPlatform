@@ -114,7 +114,7 @@ namespace VideoPlatform.Web.Controllers {
                 await blob.UploadAsync(stream, overwrite: true);
             }
 
-            TempData["Success"] = "File uploaded successfully!";
+            TempData["Success"] = "Video uploaded successfully!";
             return RedirectToAction("Index");
         }
 
@@ -126,6 +126,7 @@ namespace VideoPlatform.Web.Controllers {
             episode.IsPublished = true;
             await _episodeRepository.UpdateEpisodeAsync(episode);
 
+            TempData["Success"] = "Episode updated successfully!";
             return RedirectToAction("Index");
         }
 
@@ -158,6 +159,7 @@ namespace VideoPlatform.Web.Controllers {
 
             using (var stream = file.OpenReadStream()) {
                 await blob.UploadAsync(stream, true);
+                TempData["Success"] = "Video uploaded successfully!";
             }
 
             return RedirectToAction("Index");
@@ -170,13 +172,23 @@ namespace VideoPlatform.Web.Controllers {
 
                 var blob = container.GetBlobClient(data);
 
-                if (await blob.ExistsAsync()) {
-                    await blob.DeleteIfExistsAsync();
+                bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
+
+                if (videoInUse)
+                {
+                    TempData["Error"] = "Video is currently in use by an episode!";
+                    return RedirectToAction("Index");
                 }
 
+                if (await blob.ExistsAsync())
+                {
+                    var result = await blob.DeleteIfExistsAsync();
+                    TempData["Success"] = "Video deleted successfully!";
+                }
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
+                TempData["Error"] = "Unable to delete video.";
                 return View("Error", new { message = ex.Message });
             }
         }
@@ -190,15 +202,24 @@ namespace VideoPlatform.Web.Controllers {
 
                 var blob = container.GetBlobClient(data);
 
-                if (await blob.ExistsAsync())
+                bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
+
+                if (videoInUse)
                 {
-                    await blob.DeleteIfExistsAsync();
+                    TempData["Error"] = "Video is currently in use by an episode!";
+                    return RedirectToAction("Index");
                 }
 
+                if (await blob.ExistsAsync())
+                {
+                    var result = await blob.DeleteIfExistsAsync();
+                    TempData["Success"] = "Video deleted successfully!";
+                }
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                TempData["Error"] = "Unable to delete video.";
                 return View("Error", new { message = ex.Message });
             }
         }
@@ -212,15 +233,25 @@ namespace VideoPlatform.Web.Controllers {
 
                 var blob = container.GetBlobClient(data);
 
+                bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
+
+                if (videoInUse)
+                {
+                    TempData["Error"] = "Video is currently in use by an episode!";
+                    return RedirectToAction("Index");
+                }
+
                 if (await blob.ExistsAsync())
                 {
-                    await blob.DeleteIfExistsAsync();
-                }
+                    var result = await blob.DeleteIfExistsAsync();
+                    TempData["Success"] = "Video deleted successfully!";
+                } 
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
+                TempData["Error"] = "Unable to delete video. Please ensure it is not used by an episode.";
                 return View("Error", new { message = ex.Message });
             }
         }

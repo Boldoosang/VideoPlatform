@@ -49,5 +49,10 @@ namespace VideoPlatform.Infrastructure.Repositories {
             _context.Episodes.Update(episode);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<bool> IsVideoInUseAsync(string videoName)
+        {
+            return await _context.Episodes.AnyAsync(e => e.FilePath.EndsWith(videoName));
+        }
     }
 }
