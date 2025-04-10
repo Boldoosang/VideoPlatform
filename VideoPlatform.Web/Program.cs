@@ -29,7 +29,8 @@ string connectionString = builder.Configuration.GetConnectionString("DatabaseCon
 builder.Services.AddDbContext<VideoPlatformContext>(options => options.UseSqlServer(connectionString));
 
 // Dependency Injection
-builder.Services.AddSingleton(new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
+string blobConnectionString = builder.Configuration.GetConnectionString("AzureBlobStorage") ?? throw new InvalidOperationException("Azure Blob connection string is not provided.");
+builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEpisodeRepository, EpisodeRepository>();
 builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();
