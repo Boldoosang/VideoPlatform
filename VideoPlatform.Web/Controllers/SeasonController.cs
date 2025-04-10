@@ -105,6 +105,7 @@ namespace VideoPlatform.Web.Controllers
                     try
                     {
                         await _seasonRepository.UpdateSeasonAsync(season);
+                        TempData["Success"] = "Season updated successfully!";
                         return RedirectToAction(nameof(Index));
                     }
                     catch (DbUpdateException e)
@@ -125,7 +126,6 @@ namespace VideoPlatform.Web.Controllers
                         throw;
                     }
                 }
-                TempData["Success"] = "Season created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(season);
