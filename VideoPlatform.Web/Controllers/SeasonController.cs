@@ -63,15 +63,9 @@ namespace VideoPlatform.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                try
-                {
-                    await _seasonRepository.AddSeasonAsync(season);
-                    return RedirectToAction(nameof(Index));
-                } catch(DbUpdateException e)
-                {
-                    ModelState.AddModelError("SeasonNumber", "This season number is already taken.");
-                    return View(season);
-                }
+                await _seasonRepository.AddSeasonAsync(season);
+                TempData["Success"] = "Season created successfully!";
+                return RedirectToAction(nameof(Index));
             }
             return View(season);
         }
@@ -123,6 +117,7 @@ namespace VideoPlatform.Web.Controllers
                 {
                     if (!await SeasonExists(season.Id))
                     {
+                        TempData["Error"] = "Season does not exist!";
                         return NotFound();
                     }
                     else
@@ -130,6 +125,7 @@ namespace VideoPlatform.Web.Controllers
                         throw;
                     }
                 }
+                TempData["Success"] = "Season created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(season);
@@ -163,7 +159,7 @@ namespace VideoPlatform.Web.Controllers
             {
                 await _seasonRepository.DeleteSeasonByIdAsync(season.Id);
             }
-
+            TempData["Success"] = "Season deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 

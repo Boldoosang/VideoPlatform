@@ -114,6 +114,7 @@ namespace VideoPlatform.Web.Controllers
             if (ModelState.IsValid)
             {
                 await _episodeRepository.AddEpisodeAsync(episode);
+                TempData["Success"] = "Episode created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
@@ -159,11 +160,13 @@ namespace VideoPlatform.Web.Controllers
                 try
                 {
                     await _episodeRepository.UpdateEpisodeAsync(episode);
+                    TempData["Success"] = "Episode updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!await EpisodeExists(episode.Id))
                     {
+                        TempData["Error"] = "Episode does not exist!";
                         return NotFound();
                     }
                     else
@@ -206,6 +209,7 @@ namespace VideoPlatform.Web.Controllers
             if (episode != null)
             {
                 await _episodeRepository.DeleteEpisodeByIdAsync(episode.Id);
+                TempData["Success"] = "Episode deleted successfully!";
             }
 
             return RedirectToAction(nameof(Index));

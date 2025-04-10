@@ -77,7 +77,10 @@ namespace VideoPlatform.Web.Controllers {
             var file = fileUploadModel.File;
 
             if (file == null || file.Length == 0)
-                return BadRequest("Please select a file.");
+            {
+                TempData["Error"] = "No file was selected!";
+                return RedirectToAction("Upload");
+            }
 
             const long maxFileSize = 1L * 1024 * 1024 * 1024; // 1GB in bytes
 
@@ -111,6 +114,7 @@ namespace VideoPlatform.Web.Controllers {
                 await blob.UploadAsync(stream, overwrite: true);
             }
 
+            TempData["Success"] = "File uploaded successfully!";
             return RedirectToAction("Index");
         }
 

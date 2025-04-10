@@ -45,4 +45,8 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\lib\toastr\" />
+  </ItemGroup>
+
 </Project>

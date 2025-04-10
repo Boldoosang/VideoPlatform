@@ -83,16 +83,41 @@
         </dl>
     </div>
 
-    <form asp-action="Delete" class="mt-4">
-        <input type="hidden" asp-for="Id" />
+    <div class="d-flex justify-content-start">
+        <button type="submit" class="btn btn-danger rounded me-2 px-5"
+                data-bs-toggle="modal"
+                data-bs-data="@(Model.Id)"
+                data-bs-target="#episodeDeleteConfirmModal">
+            <i class="bi bi-trash me-1"></i> Delete
+        </button>
+        <a asp-action="Index" class="btn btn-outline-light rounded px-3">
+            Back to List
+        </a>
+    </div>
+</div>
 
-        <div class="d-flex justify-content-start">
-            <button type="submit" class="btn btn-danger rounded me-2 px-5">
-                <i class="bi bi-trash me-1"></i> Delete
-            </button>
-            <a asp-action="Index" class="btn btn-outline-light rounded px-3">
-                Back to List
-            </a>
+
+<div class="modal fade" id="episodeDeleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="episodeDeleteConfirmModalLabel">Delete Episode</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="@(Model.Id)-modalForm" asp-action="Delete" asp-controller="Episode" asp-route-id=@Model.Id method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="modal-body">
+                    <span>Are you sure you want to delete this episode?</span>
+                </div>
+                <div class="modal-footer row gx-2 justify-content-center d-flex">
+                    <div class="col-12 col-lg-5">
+                        <button type="submit" id="@(Model.Id)-submissionButton" type="button" class="btn btn-danger w-100">Delete</button>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>

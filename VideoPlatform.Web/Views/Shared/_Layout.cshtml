@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/VideoPlatform.Web.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/datatables/datatables.css">
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
     <header>
@@ -49,16 +50,16 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <partial name="_Notification" />
             @RenderBody()
         </main>
     </div>
     <footer class="border-top footer">
-        <div class="container">
-            <p>&copy; 2025 - VideoPlatform.Web</p>
+        <div class="container fw-light">
+            Copyright &copy 2025 - VideoPlatform.Web - <a asp-area="" asp-controller="Home" asp-action="Documentation">Documentation</a>
         </div>
     </footer>
     <script src="~/lib/video-js/video.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/datatables/datatables.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
