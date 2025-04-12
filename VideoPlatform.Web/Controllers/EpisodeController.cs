@@ -17,15 +17,15 @@ namespace VideoPlatform.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class EpisodeController : Controller
     {
+        private readonly IVideoStorageAccessor _videoStorageAccessor;
         private readonly IEpisodeRepository _episodeRepository;
         private readonly ISeasonRepository _seasonRepository;
-        private readonly BlobServiceClient _blobServiceClient;
 
-        public EpisodeController(IEpisodeRepository episodeRepository, ISeasonRepository seasonRepository, BlobServiceClient blobServiceClient)
+        public EpisodeController(IEpisodeRepository episodeRepository, ISeasonRepository seasonRepository, IVideoStorageAccessor videoStorageAccessor)
         {
             _episodeRepository = episodeRepository;
             _seasonRepository = seasonRepository;
-            _blobServiceClient = blobServiceClient;
+            _videoStorageAccessor = videoStorageAccessor;
         }
 
         // GET: Episode
@@ -75,31 +75,11 @@ namespace VideoPlatform.Web.Controllers
         // GET: Episode/Create
         public async Task <IActionResult> Create()
         {
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             var seasons = await _seasonRepository.GetAllSeasonsAsync(); 
             ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View();
-        }
-
-        public async Task<List<Video>> GetEditedVideoList(string containerName) {
-            var container = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobs = container.GetBlobsAsync();
-
-            var editedVideoList = new List<Video>();
-
-            await foreach (var blob in blobs) {
-                var blobClient = container.GetBlobClient(blob.Name);
-                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
-
-                editedVideoList.Add(new Video() {
-                    Title = blob.Name,
-                    FilePath = blobClient.Uri.ToString(),
-                    UploadDate = blobProperties.Value.LastModified.DateTime,
-                });
-            }
-
-            return editedVideoList;
         }
 
         // POST: Episode/Create
@@ -109,7 +89,7 @@ namespace VideoPlatform.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,SeasonId")] Episode episode)
         {
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
 
             if (ModelState.IsValid)
             {
@@ -138,7 +118,7 @@ namespace VideoPlatform.Web.Controllers
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
             ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -178,7 +158,7 @@ namespace VideoPlatform.Web.Controllers
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
             ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }

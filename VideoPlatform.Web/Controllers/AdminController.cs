@@ -5,13 +5,20 @@ using Microsoft.EntityFrameworkCore;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Domain.Models;
 using VideoPlatform.Web.Models;
+using VideoPlatform.Infrastructure.Repositories;
 
 namespace VideoPlatform.Web.Controllers {
     [Authorize(Roles = "Admin")]
-    public class AdminController(BlobServiceClient blobServiceClient, IEpisodeRepository episodeRepository) : Controller {
+    public class AdminController : Controller {
 
-        private readonly BlobServiceClient _blobServiceClient = blobServiceClient;
-        private readonly IEpisodeRepository _episodeRepository = episodeRepository;
+        private readonly IVideoStorageAccessor _videoStorageAccessor;
+        private readonly IEpisodeRepository _episodeRepository;
+
+        public AdminController(IEpisodeRepository episodeRepository, IVideoStorageAccessor videoStorageAccessor)
+        {
+            _videoStorageAccessor = videoStorageAccessor;
+            _episodeRepository = episodeRepository;
+        }
 
         public IActionResult Index() {
             return View();
@@ -28,42 +35,14 @@ namespace VideoPlatform.Web.Controllers {
 
         [HttpGet]
         public async Task<IActionResult> VideoLibrary() {
-            var container = _blobServiceClient.GetBlobContainerClient("videos");
-            var blobs = container.GetBlobsAsync();
-
-            var videoList = new List<Video>();
-
-            await foreach (var blob in blobs) {
-                var blobClient = container.GetBlobClient(blob.Name);
-                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
-
-                videoList.Add(new Video() { 
-                    Title = blob.Name,
-                    FilePath = blobClient.Uri.ToString(),
-                    UploadDate = blobProperties.Value.LastModified.DateTime,            
-                });
-            }
+            var videoList = await _videoStorageAccessor.GetContainerVideoListAsync("videos");
 
             return View(videoList);
         }
 
         [HttpGet]
         public async Task<IActionResult> EditedVideoLibrary() {
-            var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
-            var blobs = container.GetBlobsAsync();
-
-            var videoList = new List<Video>();
-
-            await foreach (var blob in blobs) {
-                var blobClient = container.GetBlobClient(blob.Name);
-                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
-
-                videoList.Add(new Video() {
-                    Title = blob.Name,
-                    FilePath = blobClient.Uri.ToString(),
-                    UploadDate = blobProperties.Value.LastModified.DateTime,
-                });
-            }
+            var videoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
 
             return View(videoList);
         }
@@ -103,15 +82,15 @@ namespace VideoPlatform.Web.Controllers {
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Only video files are allowed (invalid extension).");
 
-            if (!allowedMimeTypes.Contains(file.ContentType))
-                return BadRequest("Only video files are allowed (invalid content type).");
+            //if (!allowedMimeTypes.Contains(file.ContentType))
+            //    return BadRequest("Only video files are allowed (invalid content type).");
 
-            var container = _blobServiceClient.GetBlobContainerClient("videos");
-            var blob = container.GetBlobClient(file.FileName);
+            var uploaded = await _videoStorageAccessor.UploadVideoAsync("videos", file.FileName, file.OpenReadStream());
 
-            using (var stream = file.OpenReadStream())
+            if(!uploaded)
             {
-                await blob.UploadAsync(stream, overwrite: true);
+                TempData["Error"] = "Unable to upload video. Please ensure a matching file name does not already exists.";
+                return RedirectToAction("Upload");
             }
 
             TempData["Success"] = "Video uploaded successfully!";
@@ -151,27 +130,24 @@ namespace VideoPlatform.Web.Controllers {
             if (!allowedExtensions.Contains(extension))
                 return BadRequest("Only video files are allowed (invalid extension).");
 
-            if (!allowedMimeTypes.Contains(file.ContentType))
-                return BadRequest("Only video files are allowed (invalid content type).");
+            //if (!allowedMimeTypes.Contains(file.ContentType))
+            //    return BadRequest("Only video files are allowed (invalid content type).");
 
-            var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
-            var blob = container.GetBlobClient(file.FileName);
+            var uploaded = await _videoStorageAccessor.UploadVideoAsync("editedvideos", file.FileName, file.OpenReadStream());
 
-            using (var stream = file.OpenReadStream()) {
-                await blob.UploadAsync(stream, true);
-                TempData["Success"] = "Video uploaded successfully!";
+            if (!uploaded)
+            {
+                TempData["Error"] = "Unable to upload video. Please ensure a matching file name does not already exists.";
+                return RedirectToAction("Upload");
             }
 
+            TempData["Success"] = "Video uploaded successfully!";
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteVideo(string data) {
             try {
-                var container = _blobServiceClient.GetBlobContainerClient("videos");
-
-                var blob = container.GetBlobClient(data);
-
                 bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
 
                 if (videoInUse)
@@ -180,11 +156,12 @@ namespace VideoPlatform.Web.Controllers {
                     return RedirectToAction("Index");
                 }
 
-                if (await blob.ExistsAsync())
+                bool deleted = await _videoStorageAccessor.DeleteVideoIfExistsAsync("videos", data);
+                if (deleted)
                 {
-                    var result = await blob.DeleteIfExistsAsync();
                     TempData["Success"] = "Video deleted successfully!";
                 }
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex) {
@@ -198,9 +175,6 @@ namespace VideoPlatform.Web.Controllers {
         {
             try
             {
-                var container = _blobServiceClient.GetBlobContainerClient("publishedvideos");
-
-                var blob = container.GetBlobClient(data);
 
                 bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
 
@@ -210,11 +184,12 @@ namespace VideoPlatform.Web.Controllers {
                     return RedirectToAction("Index");
                 }
 
-                if (await blob.ExistsAsync())
+                bool deleted = await _videoStorageAccessor.DeleteVideoIfExistsAsync("publishedvideos", data);
+                if (deleted)
                 {
-                    var result = await blob.DeleteIfExistsAsync();
                     TempData["Success"] = "Video deleted successfully!";
                 }
+
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -229,10 +204,6 @@ namespace VideoPlatform.Web.Controllers {
         {
             try
             {
-                var container = _blobServiceClient.GetBlobContainerClient("editedvideos");
-
-                var blob = container.GetBlobClient(data);
-
                 bool videoInUse = await _episodeRepository.IsVideoInUseAsync(data);
 
                 if (videoInUse)
@@ -241,11 +212,11 @@ namespace VideoPlatform.Web.Controllers {
                     return RedirectToAction("Index");
                 }
 
-                if (await blob.ExistsAsync())
+                bool deleted = await _videoStorageAccessor.DeleteVideoIfExistsAsync("editedvideos", data);
+                if (deleted)
                 {
-                    var result = await blob.DeleteIfExistsAsync();
                     TempData["Success"] = "Video deleted successfully!";
-                } 
+                }
 
                 return RedirectToAction("Index");
             }
