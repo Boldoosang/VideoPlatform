@@ -74,4 +74,3 @@ jobs:
           app-name: 'videorendererph'
           slot-name: 'Production'
           package: .
-          
