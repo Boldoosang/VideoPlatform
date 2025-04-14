@@ -1,0 +1,10 @@
+{
+	"extends": "@remotion",
+	"rules": {
+    "react/react-in-jsx-scope": "off", // React 17+ ya no requiere importar React explícitamente
+    "react/require-default-props": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "complexity": ["warn", 30],
+    "capitalized-comments": "off"
+  }
+}
