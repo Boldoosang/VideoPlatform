@@ -38,6 +38,6 @@
     "typescript": "^4.9.4"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node app.js"
   }
 }
