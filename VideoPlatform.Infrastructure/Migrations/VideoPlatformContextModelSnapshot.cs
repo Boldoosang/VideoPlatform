@@ -44,18 +44,18 @@ namespace VideoPlatform.Infrastructure.Migrations
                     b.Property<DateTime>("PublishDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("SeasonId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("seasonId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("seasonId");
+                    b.HasIndex("SeasonId");
 
-                    b.ToTable("Episodes", (string)null);
+                    b.ToTable("Episodes");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Season", b =>
@@ -70,6 +70,9 @@ namespace VideoPlatform.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("ReleaseDate")
                         .HasColumnType("datetime2");
 
@@ -82,7 +85,10 @@ namespace VideoPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Seasons", (string)null);
+                    b.HasIndex("SeasonNumber")
+                        .IsUnique();
+
+                    b.ToTable("Seasons");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Video", b =>
@@ -106,14 +112,14 @@ namespace VideoPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Videos", (string)null);
+                    b.ToTable("Videos");
                 });
 
             modelBuilder.Entity("VideoPlatform.Domain.Models.Episode", b =>
                 {
                     b.HasOne("VideoPlatform.Domain.Models.Season", "Season")
                         .WithMany("Episodes")
-                        .HasForeignKey("seasonId");
+                        .HasForeignKey("SeasonId");
 
                     b.Navigation("Season");
                 });

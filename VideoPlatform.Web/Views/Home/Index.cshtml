@@ -1,34 +1,39 @@
 ﻿@model VideoPlatform.Domain.DTOs.PublishedVideoListingDTO
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Published Video Library";
 }
 
-<h2>Published Video Library!</h2>
+<div class="container text-center text-light pb-5 pt-3">
+    <h2 class="display-4 fw-bold">Published Video Library</h2>
+    <p class="lead">Browse through seasons and standalone episodes available for viewing.</p>
+</div>
 
-<div class="row">
-    @if (Model.Seasons != null)
+<hr class="mt-0 mb-4" />
+
+<div class="container">
+    @if (Model.Seasons != null && Model.Seasons.Any())
     {
         @foreach (var season in Model.Seasons)
         {
-            <div class="p-2 border border-1 w-100">
-                <h3>Season @season.Title</h3>
-                <p>@season.Description</p>
+            <div class="p-4 mb-4 border rounded-3 shadow-sm bg-dark">
+                <h3 class="text-light fw-bold">@season.Title</h3>
+                <p class="text-muted">@season.Description</p>
 
                 @if (season.Episodes != null && season.Episodes.Any())
                 {
                     <div class="row">
-                        @foreach (var episode in season.Episodes)
+                        @foreach (var episode in season.Episodes.Where(e => e.IsPublished))
                         {
                             <div class="col-12 col-md-4 mb-4">
-                                <div class="card d-flex flex-column h-100 rounded-0 rounded-bottom">
+                                <div class="card shadow-lg border-0 rounded-3">
                                     <div class="card-body d-flex flex-column p-0">
-                                        <video class="w-100 p-0 m-0" controls>
-                                            <source src="@episode.FilePath" type="video/mp4">
-                                        </video>
-                                        <div class="p-2 flex-grow-1">
-                                            <h5 class="card-title mt-2 mb-0">@episode.Title</h5>
-                                            <p class="card-text mt-1 mb-3">
-                                                <small class="text-muted">@episode.PublishDate.ToString("MMMM dd, yyyy")</small>
+                                        <a href="@Url.Action("Watch", "Episode", new { id = episode.Id })">
+                                            <img src='https://www.shutterstock.com/image-vector/colored-modern-background-style-social-260nw-1752679094.jpg' id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
+                                        </a>
+                                        <div class="p-3 flex-grow-1">
+                                            <h5 class="card-title mt-2 mb-0 text-light">@episode.Title</h5>
+                                            <p class="card-text mt-1 mb-3 text-muted">
+                                                <small>@episode.PublishDate.ToString("MMMM dd, yyyy")</small>
                                             </p>
                                         </div>
                                     </div>
@@ -39,15 +44,21 @@
                 }
                 else
                 {
-                    <p class="text-muted">No episodes available.</p>
+                    <p class="text-muted">No episodes available in this season.</p>
                 }
             </div>
         }
     }
+    else
+    {
+        <div class="alert alert-info" role="alert">
+            No published seasons available.
+        </div>
+    }
 
-    <div class="p-2 border border-1 w-100 mt-3">
-        <h3>Standalone Episodes</h3>
-        <p>Episodes that are not in a season</p>
+    <div class="p-4 mb-4 border rounded-3 shadow-sm bg-dark mt-4">
+        <h3 class="text-light fw-bold">Standalone Episodes</h3>
+        <p class="text-muted">Episodes that are not part of a season</p>
 
         @if (Model.StandaloneEpisodes != null && Model.StandaloneEpisodes.Any())
         {
@@ -55,15 +66,15 @@
                 @foreach (var episode in Model.StandaloneEpisodes)
                 {
                     <div class="col-12 col-md-4 mb-4">
-                        <div class="card d-flex flex-column h-100 rounded-0 rounded-bottom">
+                        <div class="card shadow-lg border-0 rounded-3">
                             <div class="card-body d-flex flex-column p-0">
-                                <video class="w-100 p-0 m-0" controls>
-                                    <source src="@episode.FilePath" type="video/mp4">
-                                </video>
-                                <div class="p-2 flex-grow-1">
-                                    <h5 class="card-title mt-2 mb-0">@episode.Title</h5>
-                                    <p class="card-text mt-1 mb-3">
-                                        <small class="text-muted">@episode.PublishDate.ToString("MMMM dd, yyyy")</small>
+                                <a href="@Url.Action("Watch", "Episode", new { id = episode.Id })">
+                                    <img src='https://www.shutterstock.com/image-vector/colored-modern-background-style-social-260nw-1752679094.jpg' id="thumbnail-@episode.Id" class="w-100 p-0 m-0 rounded-3" alt="@episode.Title" />
+                                </a>
+                                <div class="p-3 flex-grow-1">
+                                    <h5 class="card-title mt-2 mb-0 text-light">@episode.Title</h5>
+                                    <p class="card-text mt-1 mb-3 text-muted">
+                                        <small>@episode.PublishDate.ToString("MMMM dd, yyyy")</small>
                                     </p>
                                 </div>
                             </div>

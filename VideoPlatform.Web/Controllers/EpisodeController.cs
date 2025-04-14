@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using VideoPlatform.Domain.DTOs;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Domain.Models;
 using VideoPlatform.Infrastructure;
@@ -16,15 +17,15 @@ namespace VideoPlatform.Web.Controllers
     [Authorize(Roles = "Admin")]
     public class EpisodeController : Controller
     {
+        private readonly IVideoStorageAccessor _videoStorageAccessor;
         private readonly IEpisodeRepository _episodeRepository;
         private readonly ISeasonRepository _seasonRepository;
-        private readonly BlobServiceClient _blobServiceClient;
 
-        public EpisodeController(IEpisodeRepository episodeRepository, ISeasonRepository seasonRepository, BlobServiceClient blobServiceClient)
+        public EpisodeController(IEpisodeRepository episodeRepository, ISeasonRepository seasonRepository, IVideoStorageAccessor videoStorageAccessor)
         {
             _episodeRepository = episodeRepository;
             _seasonRepository = seasonRepository;
-            _blobServiceClient = blobServiceClient;
+            _videoStorageAccessor = videoStorageAccessor;
         }
 
         // GET: Episode
@@ -35,7 +36,8 @@ namespace VideoPlatform.Web.Controllers
         }
 
         // GET: Episode/Details/5
-        public async Task<IActionResult> Details(int? id)
+        [AllowAnonymous]
+        public async Task<IActionResult> Watch(int? id)
         {
             if (id == null)
             {
@@ -49,37 +51,35 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
 
-            return View(episode);
+
+            if (!episode.IsPublished)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    ViewBag.ViewingAsAdmin = true;
+                } else
+                {
+                    return NotFound();
+                }
+            }
+
+            EpisodePlaybackDTO episodePlaybackDTO = new EpisodePlaybackDTO
+            {
+                CurrentEpisode = episode,
+                RelatedEpisodes = (await _episodeRepository.GetAllEpisodesAsync()).Where(e => e.IsPublished)
+                    .ToList()
+            };
+            return View(episodePlaybackDTO);
         }
 
         // GET: Episode/Create
         public async Task <IActionResult> Create()
         {
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             var seasons = await _seasonRepository.GetAllSeasonsAsync(); 
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View();
-        }
-
-        public async Task<List<Video>> GetEditedVideoList(string containerName) {
-            var container = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobs = container.GetBlobsAsync();
-
-            var editedVideoList = new List<Video>();
-
-            await foreach (var blob in blobs) {
-                var blobClient = container.GetBlobClient(blob.Name);
-                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
-
-                editedVideoList.Add(new Video() {
-                    Title = blob.Name,
-                    FilePath = blobClient.Uri.ToString(),
-                    UploadDate = blobProperties.Value.LastModified.DateTime,
-                });
-            }
-
-            return editedVideoList;
         }
 
         // POST: Episode/Create
@@ -87,17 +87,18 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Description,PublishDate,FilePath,IsPublished")] Episode episode)
+        public async Task<IActionResult> Create([Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,SeasonId")] Episode episode)
         {
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
 
             if (ModelState.IsValid)
             {
                 await _episodeRepository.AddEpisodeAsync(episode);
+                TempData["Success"] = "Episode created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -116,8 +117,8 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description", episode.seasonId);
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -127,7 +128,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,seasonId")] Episode episode)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Description,PublishDate,FilePath,IsPublished,SeasonId")] Episode episode)
         {
             if (id != episode.Id)
             {
@@ -139,11 +140,13 @@ namespace VideoPlatform.Web.Controllers
                 try
                 {
                     await _episodeRepository.UpdateEpisodeAsync(episode);
+                    TempData["Success"] = "Episode updated successfully!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!await EpisodeExists(episode.Id))
                     {
+                        TempData["Error"] = "Episode does not exist!";
                         return NotFound();
                     }
                     else
@@ -154,8 +157,8 @@ namespace VideoPlatform.Web.Controllers
                 return RedirectToAction(nameof(Index));
             }
             var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            ViewData["seasonId"] = new SelectList(seasons, "Id", "Description", episode.seasonId);
-            var editedVideoList = await GetEditedVideoList("editedvideos");
+            ViewData["SeasonId"] = new SelectList(seasons, "Id", "Title", episode.SeasonId);
+            var editedVideoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
             ViewData["editedVideoList"] = new SelectList(editedVideoList, "FilePath", "Title");
             return View(episode);
         }
@@ -186,6 +189,7 @@ namespace VideoPlatform.Web.Controllers
             if (episode != null)
             {
                 await _episodeRepository.DeleteEpisodeByIdAsync(episode.Id);
+                TempData["Success"] = "Episode deleted successfully!";
             }
 
             return RedirectToAction(nameof(Index));
@@ -194,6 +198,26 @@ namespace VideoPlatform.Web.Controllers
         private async Task<bool> EpisodeExists(int id)
         {
             return await _episodeRepository.EpisodeExists(id);
+        }
+
+        [HttpGet("api/episodes")]
+        [Authorize]
+        public async Task<IActionResult> GetAllEpisodes()
+        {
+            var episodes = await _episodeRepository.GetAllEpisodesAsync();
+
+            var episodeDTOs = episodes.Select(e => new EpisodeDTO
+            {
+                Id = e.Id,
+                Title = e.Title,
+                Description = e.Description,
+                PublishDate = e.PublishDate,
+                FilePath = e.FilePath,
+                IsPublished = e.IsPublished,
+                SeasonTitle = e.Season?.Title ?? "Standalone Episode"
+            });
+
+            return new JsonResult(new { data = episodeDTOs });
         }
     }
 }

@@ -1,65 +1,99 @@
-﻿@model IEnumerable<VideoPlatform.Domain.Models.Episode>
-
-@{
-    ViewData["Title"] = "Index";
+﻿@{
+    ViewData["Title"] = "Episode Management";
 }
 
-<h1>Index</h1>
+<div class="container">
+    <div class="text-center text-light pb-5 pt-3">
+        <h2 class="display-4 fw-bold">Episode Management</h2>
+        <p class="lead">Manage the episodes available on the platform.</p>
+        <a asp-action="Create" asp-controller="Episode" class="btn btn-primary rounded-pill px-5 mt-2 mb-0">
+            <i class="bi bi-camera-reels me-1"></i> Create New Episode
+        </a>
+    </div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PublishDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FilePath)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsPublished)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Season)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PublishDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FilePath)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsPublished)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Season.Description)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    <div class="table-responsive">
+        <table id="episodeTable" class="table table-dark table-striped table-hover align-middle mb-0 w-100">
+            <thead class="bg-secondary text-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Season</th>
+                    <th>Publish Date</th>
+                    <th class="text-center">Published</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new DataTable('#episodeTable', {
+                ajax: {
+                    url: '/api/episodes',
+                    dataSrc: 'data'
+                },
+                responsive: true,
+                columns: [
+                    {
+                        data: 'title',
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 200px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'description',
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'seasonTitle',
+                        render: function (data, type, row) {
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${data}">${data}</span>`;
+                        }
+                    },
+                    {
+                        data: 'publishDate',
+                        render: function (data) {
+                            const date = new Date(data);
+                            var finalDate =  date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            });
+                            return `<span class="d-inline-block text-truncate" style="max-width: 300px;" title="${finalDate}">${finalDate}</span>`;
+                        }
+                    },
+                    {
+                        data: 'isPublished',
+                        render: function (data) {
+                            return data
+                                ? `<span class="badge bg-success d-inline-block text-truncate" style="max-width: 300px;">Yes</span>`
+                                : `<span class="badge bg-danger d-inline-block text-truncate" style="max-width: 300px;">No</span>`;
+
+                        }
+                    },
+                    {
+                        data: 'id',
+                        className: 'text-end',
+                        render: function (data, type, row) {
+                            return `
+                                <a href="/Episode/Watch/${data}" class="btn btn-primary btn-sm me-1">
+                                    <i class="bi bi-info-circle"></i> View
+                                </a>
+                                <a href="/Episode/Edit/${data}" class="btn btn-success btn-sm me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <a href="/Episode/Delete/${data}" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash3"></i> Delete
+                                </a>`;
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
 }
-    </tbody>
-</table>

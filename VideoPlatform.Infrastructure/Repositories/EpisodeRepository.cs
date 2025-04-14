@@ -30,15 +30,15 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
 
         public async Task<IEnumerable<Episode>> GetAllEpisodesAsync() {
-            return await _context.Episodes.ToListAsync();
+            return await _context.Episodes.Include(e => e.Season).OrderByDescending(e => e.PublishDate).ToListAsync();
         }
 
         public async Task<Episode?> GetEpisodeAsync(int episodeId) {
-            return await _context.Episodes.FirstOrDefaultAsync(v => v.Id == episodeId);
+            return await _context.Episodes.Include(e => e.Season).FirstOrDefaultAsync(v => v.Id == episodeId);
         }
 
         public async Task<IEnumerable<Episode>> GetStandaloneEpisodesAsync() {
-            return await _context.Episodes.Where(e => e.seasonId == null).ToListAsync();
+            return await _context.Episodes.Where(e => e.SeasonId == null).ToListAsync();
         }
 
         public async Task<bool> EpisodeExists(int episodeId) {
@@ -48,6 +48,11 @@ namespace VideoPlatform.Infrastructure.Repositories {
         public async Task UpdateEpisodeAsync(Episode episode) {
             _context.Episodes.Update(episode);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsVideoInUseAsync(string videoName)
+        {
+            return await _context.Episodes.AnyAsync(e => e.FilePath.EndsWith(videoName));
         }
     }
 }

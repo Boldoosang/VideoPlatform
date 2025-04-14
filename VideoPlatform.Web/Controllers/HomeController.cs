@@ -20,25 +20,21 @@ namespace VideoPlatform.Web.Controllers {
 
         [AllowAnonymous]
         public async Task<IActionResult> Index() {
-            var episodes = await _episodeRepository.GetAllEpisodesAsync();
-            var publishedEpisodes = episodes
-                .Where(e => e.IsPublished)
-                .OrderByDescending(e => e.PublishDate)
-                .ToList();
+            var seasons = (await _seasonRepository.GetAllSeasonsAndEpisodesAsync()).Where(s => s.IsPublished);
+            var standaloneEpisodes = (await _episodeRepository.GetStandaloneEpisodesAsync()).Where(e => e.IsPublished);
 
-            var seasons = await _seasonRepository.GetAllSeasonsAsync();
-            var standaloneEpisodes = await _episodeRepository.GetStandaloneEpisodesAsync();
-
-            var publishedVideoListingDTO = new PublishedVideoListingDTO {
+            var publishedVideoListingDTO = new PublishedVideoListingDTO
+            {
                 Seasons = seasons.ToList(),
-                StandaloneEpisodes = standaloneEpisodes.Where(e => e.IsPublished)
+                StandaloneEpisodes = standaloneEpisodes.ToList()
             };
 
             return View(publishedVideoListingDTO);
         }
 
         [AllowAnonymous]
-        public IActionResult Documentation() {
+        public IActionResult Documentation()
+        {
             return View();
         }
 

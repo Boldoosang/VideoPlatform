@@ -1537,15 +1537,17 @@ function add_text() {
 }
 
 async function exportVideo(blob) {
+    var originalFileName = window.currentVideoFileName
     const vid = document.createElement('video');
     vid.controls = true;
     vid.src = URL.createObjectURL(blob);
     backgroundElem(vid);
     let extension = blob.type.split(';')[0].split('/')[1];
+    const safeFileName = `${originalFileName}.${extension}`;
 
     // Prepare form data to send the file to the controller
     const formData = new FormData();
-    formData.append('file', blob, `video.${extension}`);
+    formData.append('file', blob, safeFileName);
 
     // Send the video via a POST request
     await fetch('/Admin/UploadEditedVideo', {
@@ -1553,6 +1555,7 @@ async function exportVideo(blob) {
         body: formData,
     }).then(() => {
         alert("Video uploaded!");
+        window.location = "/Admin/EditedVideoLibrary";
     })
 }
 
@@ -1583,10 +1586,9 @@ function uploadSupportedType(files) {
 }
 
 function initialLoad() {
-    console.log(videoUrl);
-
     // Validate the video URL (basic validation)
     if (videoUrl) {
+        const fileName = videoUrl.split('/').pop().split('?')[0]; // handles query strings too
         // Fetch the video file as a Blob
         fetch(videoUrl)
             .then(response => {
@@ -1597,9 +1599,10 @@ function initialLoad() {
             })
             .then(blob => {
                 // Create a File object from the Blob
-                const file = new File([blob], 'video.mp4', { type: 'video/mp4' });
+                const file = new File([blob], fileName, { type: 'video/mp4' });
 
-                // Pass the file to the player
+                // Save the filename for use later
+                window.currentVideoFileName = fileName.split('.').slice(0, -1).join('.')
                 player.addFile(file);  // Now you're passing the actual file to addFile
             })
             .catch(error => {

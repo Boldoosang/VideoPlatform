@@ -16,24 +16,53 @@
     };
 }
 
-<h2>Video Library</h2>
+<div class="container text-center text-light pb-5 pt-3">
+    <h2 class="display-4 fw-bold">Teams Recording Library</h2>
+    <p class="lead">Manage your Microsoft Teams recordings, or manually upload a recording.</p>
+    <a asp-action="Upload" asp-controller="Admin" class="btn btn-primary rounded-pill px-5 mt-2 mb-0">
+        <i class="bi bi-upload me-2"></i> Upload Recording
+    </a>
+</div>
+<hr class="mt-0 mb-4"/>
+<div class="container d-flex justify-content-between align-items-center mb-3">
+    <h3 class="text-light">Video Recordings</h3>
+</div>
+
+@if (Model.Any())
+{
 <div class="row">
     @foreach (var video in Model)
     {
         <div class="col-12 col-md-4 mb-4">
             <div class="card d-flex flex-column h-100 rounded-0 rounded-bottom">
                 <div class="card-body d-flex flex-column p-0">
-                    <video class="w-100 p-0 m-0" controls>
-                        <source src="@video.FilePath" type="video/mp4">
+                    <video
+                           class="video-js p-0 m-0 w-100"
+                           controls
+                           preload="auto"
+                           data-setup="{}">
+                        <source src="@video.FilePath" type="video/mp4" />
+                        <p class="vjs-no-js">
+                            To view this video please enable JavaScript, and consider upgrading to a
+                            web browser that
+                            <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
+                        </p>
                     </video>
                     <div class="p-2 flex-grow-1">
                         <h5 class="card-title mt-2 mb-0">@video.Title</h5>
                         <p class="card-text mt-1 mb-3"><small class="text-muted">@video.UploadDate.ToString("MMMM dd, yyyy")</small></p>
                     </div>
                 </div>
-                <div class="d-flex m-2 btn-group">
-                    <a href="/VideoEditor/Edit?videoSrc=@(video.FilePath)" class="btn btn-primary mt-auto col-12 col-md-6">Edit Video</a>
-                    <button type="button" class="btn btn-danger mt-auto col-12 col-md-6" data-bs-toggle="modal" data-bs-data="@(video.Title)" data-bs-target="#@(Modal.Id)">
+                <div class="d-flex m-2 btn-group flex-column flex-md-row align-items-stretch">
+                        <a asp-action="Edit" asp-controller="VideoEditor" asp-route-videoSrc="@video.FilePath"
+                       class="btn btn-primary col-12 col-md-6 d-flex align-items-center justify-content-center">
+                        Edit Video
+                    </a>
+                    <button type="button"
+                            class="btn btn-danger col-12 col-md-6 d-flex align-items-center justify-content-center"
+                            data-bs-toggle="modal"
+                            data-bs-data="@(video.Title)"
+                            data-bs-target="#@(Modal.Id)">
                         Delete Video
                     </button>
                 </div>
@@ -41,5 +70,11 @@
         </div>
     }
 </div>
+} else
+{
+    <div class="alert alert-info text-center">
+        <strong>No videos available</strong> - There are currently no teams recordings in the library. You can upload a new edited recording using the button above.
+    </div>
+}
 
 @await Html.PartialAsync("_ModalPartial", Modal)

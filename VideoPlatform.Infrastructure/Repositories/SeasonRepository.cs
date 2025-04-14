@@ -20,8 +20,8 @@ namespace VideoPlatform.Infrastructure.Repositories {
             return;
         }
 
-        public async Task DeleteSeasonByIdAsync(int seasonId) {
-            var season = await _context.Seasons.FindAsync(seasonId);
+        public async Task DeleteSeasonByIdAsync(int SeasonId) {
+            var season = await _context.Seasons.FindAsync(SeasonId);
             if (season != null) {
                 _context.Seasons.Remove(season);
                 await _context.SaveChangesAsync();
@@ -33,12 +33,22 @@ namespace VideoPlatform.Infrastructure.Repositories {
             return await _context.Seasons.ToListAsync();
         }
 
-        public async Task<Season?> GetSeasonAsync(int seasonId) {
-            return await _context.Seasons.FirstOrDefaultAsync(v => v.Id == seasonId);
+        public async Task<IEnumerable<Season>> GetAllSeasonsAndEpisodesAsync()
+        {
+            return await _context.Seasons.Include(s => s.Episodes).ToListAsync();
         }
 
-        public async Task<bool> SeasonExists(int seasonId) {
-            return await _context.Seasons.AnyAsync(e => e.Id == seasonId);
+        public async Task<Season?> GetSeasonAsync(int SeasonId) {
+            return await _context.Seasons.FirstOrDefaultAsync(v => v.Id == SeasonId);
+        }
+
+        public async Task<Season?> GetSeasonAndEpisodesAsync(int SeasonId)
+        {
+            return await _context.Seasons.Include(s => s.Episodes).FirstOrDefaultAsync(v => v.Id == SeasonId);
+        }
+
+        public async Task<bool> SeasonExists(int SeasonId) {
+            return await _context.Seasons.AnyAsync(e => e.Id == SeasonId);
         }
         
 

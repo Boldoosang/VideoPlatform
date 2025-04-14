@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using VideoPlatform.Domain.DTOs;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Domain.Models;
 using VideoPlatform.Infrastructure;
+using VideoPlatform.Infrastructure.Repositories;
 
 namespace VideoPlatform.Web.Controllers
 {
@@ -25,7 +27,7 @@ namespace VideoPlatform.Web.Controllers
         // GET: Seasons
         public async Task<IActionResult> Index()
         {
-            return View(await _seasonRepository.GetAllSeasonsAsync());
+            return View(await _seasonRepository.GetAllSeasonsAndEpisodesAsync());
         }
 
         // GET: Seasons/Details/5
@@ -57,11 +59,12 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,SeasonNumber,Title,Description,ReleaseDate")] Season season)
+        public async Task<IActionResult> Create([Bind("Id,SeasonNumber,Title,Description,ReleaseDate,IsPublished")] Season season)
         {
             if (ModelState.IsValid)
             {
                 await _seasonRepository.AddSeasonAsync(season);
+                TempData["Success"] = "Season created successfully!";
                 return RedirectToAction(nameof(Index));
             }
             return View(season);
@@ -88,7 +91,7 @@ namespace VideoPlatform.Web.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonNumber,Title,Description,ReleaseDate")] Season season)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,SeasonNumber,Title,Description,ReleaseDate,IsPublished")] Season season)
         {
             if (id != season.Id)
             {
@@ -99,12 +102,23 @@ namespace VideoPlatform.Web.Controllers
             {
                 try
                 {
-                    await _seasonRepository.UpdateSeasonAsync(season);
+                    try
+                    {
+                        await _seasonRepository.UpdateSeasonAsync(season);
+                        TempData["Success"] = "Season updated successfully!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        ModelState.AddModelError("SeasonNumber", "This season number is already taken.");
+                        return View(season);
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!await SeasonExists(season.Id))
                     {
+                        TempData["Error"] = "Season does not exist!";
                         return NotFound();
                     }
                     else
@@ -125,7 +139,7 @@ namespace VideoPlatform.Web.Controllers
                 return NotFound();
             }
 
-            var season = await _seasonRepository.GetSeasonAsync(id.Value);
+            var season = await _seasonRepository.GetSeasonAndEpisodesAsync(id.Value);
 
             if (season == null)
             {
@@ -145,13 +159,33 @@ namespace VideoPlatform.Web.Controllers
             {
                 await _seasonRepository.DeleteSeasonByIdAsync(season.Id);
             }
-
+            TempData["Success"] = "Season deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
         private async Task<bool> SeasonExists(int id)
         {
             return await _seasonRepository.SeasonExists(id);
+        }
+
+        [HttpGet("api/seasons")]
+        [Authorize]
+        public async Task<IActionResult> GetAllSeasons()
+        {
+            var seasons = await _seasonRepository.GetAllSeasonsAndEpisodesAsync();
+
+            var seasonDTO = seasons.Select(s => new SeasonDTO
+            {
+                Id = s.Id,
+                Title = s.Title,
+                Description = s.Description,
+                ReleaseDate = s.ReleaseDate,
+                SeasonNumber = s.SeasonNumber,
+                EpisodeCount = s.Episodes?.Count() ?? 0,
+                IsPublished = s.IsPublished
+            });
+
+            return new JsonResult(new { data = seasonDTO });
         }
     }
 }

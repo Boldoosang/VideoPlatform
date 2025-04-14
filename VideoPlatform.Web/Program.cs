@@ -10,6 +10,7 @@ using Microsoft.Identity.Web.UI;
 using VideoPlatform.Domain.Interfaces;
 using VideoPlatform.Infrastructure;
 using VideoPlatform.Infrastructure.Repositories;
+using VideoPlatform.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddDbContext<VideoPlatformContext>(options => options.UseSqlSer
 // Dependency Injection
 string blobConnectionString = builder.Configuration.GetConnectionString("AzureBlobStorage") ?? throw new InvalidOperationException("Azure Blob connection string is not provided.");
 builder.Services.AddSingleton(new BlobServiceClient(blobConnectionString));
+builder.Services.AddSingleton<IVideoStorageAccessor, VideoStorageAccessor>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEpisodeRepository, EpisodeRepository>();
 builder.Services.AddScoped<ISeasonRepository, SeasonRepository>();

@@ -14,5 +14,6 @@ namespace VideoPlatform.Domain.Interfaces {
         Task DeleteEpisodeByIdAsync(int episodeId);
         Task<IEnumerable<Episode>> GetStandaloneEpisodesAsync();
         Task<bool> EpisodeExists(int episodeId);
+        Task<bool> IsVideoInUseAsync(string videoName);
     }
 }
