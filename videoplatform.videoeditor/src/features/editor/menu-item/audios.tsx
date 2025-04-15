@@ -36,25 +36,26 @@ export const Audios = () => {
       <div className="text-text-primary flex h-12 flex-none items-center px-4 text-sm font-medium">
         Audios
       </div>
-      <ScrollArea>
-        <div className="px-4">
-          {uploadedAudio.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No audio files uploaded yet.
-            </p>
-          ) : (
-            uploadedAudio.map((audio, index) => (
-              <div
-                onClick={() => handleAddAudio(audio.src)}
-                key={index}
-                className="flex items-center justify-center w-full bg-background pb-2 overflow-hidden cursor-pointer"
-              >
-                <p>{audio.src.split("/").pop()}</p>
+          <ScrollArea className="h-64 overflow-y-scroll border m-2">
+              <div className="px-4">
+                  {uploadedAudio.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                          No audio files uploaded yet.
+                      </p>
+                  ) : (
+                      uploadedAudio.map((audio, index) => (
+                          <div
+                              onClick={() => handleAddAudio(audio.src)}
+                              key={index}
+                              className="flex items-center justify-center w-full bg-background pb-2 overflow-hidden cursor-pointer"
+                          >
+                              <p>{audio.src.split("/").pop()}</p>
+                          </div>
+                      ))
+                  )}
               </div>
-            ))
-          )}
-        </div>
-      </ScrollArea>
+          </ScrollArea>
+
     </div>
   );
 };

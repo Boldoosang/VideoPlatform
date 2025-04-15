@@ -71,7 +71,9 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
         if (!response.ok) throw new Error("Failed to submit export request.");
 
         const jobInfo = await response.json();
-        const videoId = jobInfo.video?.id;
+          const videoId = jobInfo.video?.id;
+
+          console.log(videoId)
 
         const checkStatus = async () => {
           const statusResponse = await fetch(

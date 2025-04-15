@@ -6,16 +6,9 @@ import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
 import { download } from "@/utils/download";
 
 const DownloadProgressModal = () => {
-  const { progress, displayProgressModal, output, actions } =
-    useDownloadState();
+  const { progress, displayProgressModal, output, actions } = useDownloadState();
   const isCompleted = progress === 100;
 
-  const handleDownload = async () => {
-    if (output?.url) {
-      await download(output.url, "untitled.mp4");
-      console.log("downloading");
-    }
-  };
   return (
     <Dialog
       open={displayProgressModal}
@@ -24,12 +17,8 @@ const DownloadProgressModal = () => {
       <DialogContent className="flex h-[627px] flex-col gap-0 bg-background p-0 sm:max-w-[844px]">
         <DialogTitle className="hidden" />
         <DialogDescription className="hidden" />
-        <XIcon
-          onClick={() => actions.setDisplayProgressModal(false)}
-          className="absolute right-4 top-5 h-5 w-5 text-zinc-400 hover:cursor-pointer hover:text-zinc-500"
-        />
         <div className="flex h-16 items-center border-b px-4 font-medium">
-          Download
+          Export to Azure
         </div>
         {isCompleted ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-2 space-y-4">
@@ -39,22 +28,20 @@ const DownloadProgressModal = () => {
               </div>
               <div className="font-bold">Exported</div>
               <div className="text-muted-foreground">
-                You can download the video to your device.
+                You can access the video in the edited videos tab of the Admin dashboard.
               </div>
             </div>
-            <Button onClick={handleDownload}>Download</Button>
           </div>
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
             <div className="text-5xl font-semibold">
               {Math.floor(progress)}%
             </div>
-            <div className="font-bold">Exporting...</div>
+            <div className="font-bold">Video Queued for Rendering...</div>
             <div className="text-center text-zinc-500">
               <div>Closing the browser will not cancel the export.</div>
-              <div>The video will be saved in your space.</div>
+              <div>The video will be saved to Azure.</div>
             </div>
-            <Button variant={"outline"}>Cancel</Button>
           </div>
         )}
       </DialogContent>

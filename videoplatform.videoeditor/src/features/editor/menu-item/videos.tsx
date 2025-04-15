@@ -1,6 +1,5 @@
 import Draggable from "@/components/shared/draggable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { VIDEOS } from "../data/video";
 import { dispatch } from "@designcombo/events";
 import { ADD_VIDEO } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
@@ -35,28 +34,28 @@ export const Videos = () => {
       <div className="text-text-primary flex h-12 flex-none items-center px-4 text-sm font-medium">
         Videos
       </div>
-      <ScrollArea>
-        <div className="px-4">
-          {uploadedVideos.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No videos uploaded yet.
-            </p>
-          ) : (
-            uploadedVideos.map((video, index) => {
-                console.log(video)
-            return (
-                  <div
-                    onClick={() => handleAddVideo(video.src)}
-                    key={index}
-                    className="flex  w-full bg-background pb-2 overflow-hidden cursor-pointer"
-                  >
-                    <p>{video.src.split("/").pop()}</p>
-                  </div>
-                );
-            })
-          )}
-        </div>
-      </ScrollArea>
+          <ScrollArea className="h-64 overflow-y-scroll border m-2">
+              <div className="px-4">
+                  {uploadedVideos.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                          No videos uploaded yet.
+                      </p>
+                  ) : (
+                      uploadedVideos.map((video, index) => {
+                          console.log(video);
+                          return (
+                              <div
+                                  onClick={() => handleAddVideo(video.src)}
+                                  key={index}
+                                  className="flex w-full bg-background pb-2 overflow-hidden cursor-pointer"
+                              >
+                                  <p>{video.src.split("/").pop()}</p>
+                              </div>
+                          );
+                      })
+                  )}
+              </div>
+          </ScrollArea>
     </div>
   );
 };

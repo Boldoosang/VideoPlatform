@@ -76,7 +76,6 @@ const AnimationCaption = () => {
 
   useClickOutside(floatingRef, () => setFloatingControl(""));
   return (
-    <Draggable handle=".handle">
       <div
         className="bg-sidebar absolute right-2 top-2 z-[200] h-[calc(100%-80px)] w-56 border p-0"
         ref={floatingRef}
@@ -97,7 +96,6 @@ const AnimationCaption = () => {
           </div>
         </div>
       </div>
-    </Draggable>
   );
 };
 

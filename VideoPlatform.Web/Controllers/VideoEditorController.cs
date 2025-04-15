@@ -10,14 +10,9 @@ namespace VideoPlatform.Web.Controllers {
         public VideoEditorController(BlobServiceClient blobServiceClient) {
             _blobServiceClient = blobServiceClient;
         }
-        public IActionResult Edit(string videoSrc) {
-            ViewBag.VideoUrl = videoSrc;
-            return View();
-        }
 
-        public IActionResult Edit2(string videoSrc) {
-            ViewBag.VideoUrl = videoSrc;
-            return View();
+        public IActionResult Edit(string videoUrl) {
+            return PhysicalFile(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "index.html"), "text/html");
         }
     }
 }

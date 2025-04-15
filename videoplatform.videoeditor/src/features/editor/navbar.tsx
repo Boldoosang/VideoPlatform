@@ -95,7 +95,7 @@ const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                       name="title"
                       value={title}
                       onChange={handleTitleChange}
-                      width={400}
+                      width={600}
                       inputClassName="border-none outline-none px-1 bg-background text-sm font-medium text-zinc-200"
                   />
               </div>
@@ -124,19 +124,7 @@ const DownloadPopover = ({ stateManager, videoTitle }) => {
 
     actions.setExportType("mp4");
     actions.setState({ payload: data });
-      actions.startExport(videoTitle);
-  };
-
-    const handleExportToAzure = () => {
-        const data: IDesign = {
-        title: "My Video",
-      id: generateId(),
-      ...stateManager.getState(),
-    };
-
-    actions.setExportType("mp4");
-    actions.setState({ payload: data });
-        actions.startExport(videoTitle);
+    actions.startExport(videoTitle);
   };
 
   return (
@@ -177,10 +165,7 @@ const DownloadPopover = ({ stateManager, videoTitle }) => {
 
         <div>
           <Button onClick={handleExport} className="w-full">
-            Export
-          </Button>
-            <Button onClick={handleExportToAzure} className="w-full my-2">
-                Export to Azure
+            Export to Azure
           </Button>
         </div>
       </PopoverContent>

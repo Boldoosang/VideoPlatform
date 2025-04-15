@@ -121,7 +121,6 @@ const FontBackground = ({
             </div>
           </PopoverTrigger>
 
-          <Draggable handle=".drag-handle">
             <PopoverContent className="absolute bottom-[-15rem] right-[460px] z-[300] w-full p-0">
               <div className="drag-handle flex w-[266px] cursor-grab justify-between rounded-t-lg bg-popover px-4 pt-4">
                 <p className="text-sm font-bold">Fill</p>
@@ -146,7 +145,6 @@ const FontBackground = ({
                 allowAddGradientStops={true}
               />
             </PopoverContent>
-          </Draggable>
         </Popover>
       </div>
     </div>

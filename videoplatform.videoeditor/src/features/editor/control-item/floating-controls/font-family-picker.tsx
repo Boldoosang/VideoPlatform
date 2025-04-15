@@ -45,7 +45,6 @@ export default function FontFamilyPicker() {
   useClickOutside(floatingRef, () => setFloatingControl(""));
 
   return (
-    <Draggable handle=".handle">
       <div
         ref={floatingRef}
         className="absolute right-2 top-2 z-[200] w-56 border bg-sidebar p-0"
@@ -88,6 +87,5 @@ export default function FontFamilyPicker() {
           )}
         </ScrollArea>
       </div>
-    </Draggable>
   );
 }

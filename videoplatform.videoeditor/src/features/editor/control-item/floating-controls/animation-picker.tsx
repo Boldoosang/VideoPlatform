@@ -122,7 +122,6 @@ export default function AnimationPicker() {
 
   useClickOutside(floatingRef, () => setFloatingControl(""));
   return (
-    <Draggable handle=".handle">
       <div
         ref={floatingRef}
         className="bg-sidebar absolute right-2 top-2 z-[200] w-56 border p-0"
@@ -149,6 +148,5 @@ export default function AnimationPicker() {
           </TabsContent>
         </Tabs>
       </div>
-    </Draggable>
   );
 }

@@ -30,7 +30,7 @@ const stateManager = new StateManager({
 });
 
 const Editor = () => {
-  const [projectName, setProjectName] = useState<string>("Untitled video");
+  const [projectName, setProjectName] = useState<string>("Video Recording Project");
   const timelinePanelRef = useRef<ImperativePanelHandle>(null);
   const { timeline, playerRef } = useStore();
 

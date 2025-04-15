@@ -13,9 +13,8 @@ export const Images = () => {
   const isDraggingOverTimeline = useIsDraggingOverTimeline();
   const uploadedImages = useUploadedImagesStore((state) => state.images);
 
-  const handleAddImage = (payload: Partial<IImage>) => {
+  const handleAddImage = (src: string) => {
     const id = generateId();
-    console.log(payload)
     dispatch(ADD_ITEMS, {
       payload: {
         trackItems: [
@@ -27,7 +26,7 @@ export const Images = () => {
               to: 5000,
             },
             details: {
-              src: payload,
+              src: src,
             },
             metadata: {},
           },
@@ -41,29 +40,30 @@ export const Images = () => {
       <div className="text-text-primary flex h-12 flex-none items-center px-4 text-sm font-medium">
         Photos
       </div>
-      <ScrollArea>
-        <div className="px-4">
-          {uploadedImages.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">
-              No images uploaded yet.
-            </p>
-          ) : (
-            uploadedImages.map((image, index) => (
-              <div
-                onClick={() => handleAddImage(image.src)}
-                key={index}
-                className="flex items-center justify-center w-full bg-background pb-2 overflow-hidden cursor-pointer"
-              >
-                <img
-                  src={image.src}
-                  className="w-full h-full object-cover rounded-md"
-                  alt="image"
-                />
+          <ScrollArea className="h-64 overflow-y-scroll border m-2">
+              <div className="px-4">
+                  {uploadedImages.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                          No images uploaded yet.
+                      </p>
+                  ) : (
+                      uploadedImages.map((image, index) => (
+                          <div
+                              onClick={() => handleAddImage(image.src)}
+                              key={index}
+                              className="flex items-center justify-center w-full bg-background pb-2 overflow-hidden cursor-pointer"
+                          >
+                              <img
+                                  src={image.src}
+                                  className="w-full h-full object-cover rounded-md"
+                                  alt="image"
+                              />
+                          </div>
+                      ))
+                  )}
               </div>
-            ))
-          )}
-        </div>
-      </ScrollArea>
+          </ScrollArea>
+
     </div>
   );
 };
