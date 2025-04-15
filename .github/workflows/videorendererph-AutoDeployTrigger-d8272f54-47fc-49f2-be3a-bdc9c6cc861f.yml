@@ -32,7 +32,7 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ./VideoPlatform.VideoRenderer
-          dockerfilePath: ./VideoPlatform.VideoRenderer/Dockerfile
+          dockerfilePath: ./Dockerfile
           registryUrl: docker.io
           registryUsername: ${{ secrets.VIDEORENDERERPH_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.VIDEORENDERERPH_REGISTRY_PASSWORD }}
