@@ -14,5 +14,10 @@ namespace VideoPlatform.Web.Controllers {
             ViewBag.VideoUrl = videoSrc;
             return View();
         }
+
+        public IActionResult Edit2(string videoSrc) {
+            ViewBag.VideoUrl = videoSrc;
+            return View();
+        }
     }
 }

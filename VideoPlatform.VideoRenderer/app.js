@@ -15,7 +15,8 @@ const port = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_CONNECTION_STRING =
+  process.env.AZURE_STORAGE_CONNECTION_STRING;
 const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
 
 app.get("/", (req, res) => {
@@ -25,7 +26,10 @@ app.get("/", (req, res) => {
 app.post("/api/render", async (req, res) => {
   try {
     const { design } = req.body;
-
+    const videoName = req.body.design.title.trim().replace(/\s+/g, "_");
+    if (!videoName) {
+      return res.status(400).send("Video name is required");
+    }
     const entry = path.join(process.cwd(), "src", "index.ts");
 
     console.log("Bundling project...");
@@ -42,7 +46,7 @@ app.post("/api/render", async (req, res) => {
       return res.status(404).send("Composition not found");
     }
 
-    const outputFileName = `video-${Date.now()}.mp4`;
+    const outputFileName = `${Date.now()}_${videoName}.mp4`;
     const outputPath = path.join(process.cwd(), "out", outputFileName);
 
     console.log("Rendering video...");
@@ -68,23 +72,23 @@ app.post("/api/render", async (req, res) => {
     const blobUrl = blockBlobClient.url;
     console.log("Uploaded to Azure:", blobUrl);
 
-      res.json({ success: true, url: blobUrl });
+    res.json({ success: true, url: blobUrl });
 
-      const outDir = path.join(process.cwd(), 'out');
+    const outDir = path.join(process.cwd(), "out");
 
-      fs.rm(outDir, { recursive: true, force: true }, (err) => {
-          if (err) {
-              console.error("Failed to delete 'out' folder:", err);
-          } else {
-              console.log("'out' folder deleted successfully.");
-          }
-      });
+    fs.rm(outDir, { recursive: true, force: true }, (err) => {
+      if (err) {
+        console.error("Failed to delete 'out' folder:", err);
+      } else {
+        console.log("'out' folder deleted successfully.");
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error rendering or uploading video");
   }
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Remotion render server running at http://localhost:${port}`);
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Remotion render server running at http://localhost:${port}`);
 });

@@ -21,7 +21,7 @@ interface DownloadState {
     setProgress: (progress: number) => void;
     setState: (state: Partial<DownloadState>) => void;
     setOutput: (output: Output) => void;
-    startExport: () => void;
+    startExport: (title: string) => void;
     setDisplayProgressModal: (displayProgressModal: boolean) => void;
   };
 }
@@ -40,7 +40,7 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
     setState: (state) => set({ ...state }),
     setOutput: (output) => set({ output }),
     setDisplayProgressModal: (displayProgressModal) => set({ displayProgressModal }),
-    startExport: async () => {
+    startExport: async (title: string) => {
       try {
           set({ exporting: true, displayProgressModal: true });
           const VIDEO_RENDERER_BACKEND = import.meta.env.VITE_VIDEO_RENDERER_BACKEND;
@@ -48,7 +48,10 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
         const { payload } = get();
         if (!payload) throw new Error("Payload is not defined");
 
-        const formData = new FormData();
+          payload.title = title;
+          const formData = new FormData();
+
+          console.log(payload)
 
           const response = await fetch(`${VIDEO_RENDERER_BACKEND}/api/render`, {
           method: "POST",

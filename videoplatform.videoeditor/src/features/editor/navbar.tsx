@@ -24,6 +24,7 @@ import { useDownloadState } from "./store/use-download-state";
 import DownloadProgressModal from "./download-progress-modal";
 import AutosizeInput from "@/components/ui/autosize-input";
 import { debounce } from "lodash";
+import { string } from "zod";
 
 export default function Navbar({
   stateManager,
@@ -45,23 +46,9 @@ export default function Navbar({
     dispatch(HISTORY_REDO);
   };
 
-  const handleCreateProject = async () => {};
 
-  // Create a debounced function for setting the project name
-  const debouncedSetProjectName = useCallback(
-    debounce((name: string) => {
-      console.log("Debounced setProjectName:", name);
-      setProjectName(name);
-    }, 2000), // 2 seconds delay
-    [],
-  );
-
-  // Update the debounced function whenever the title changes
-  useEffect(() => {
-    debouncedSetProjectName(title);
-  }, [title, debouncedSetProjectName]);
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProjectName(e.target.value);
     setTitle(e.target.value);
   };
 
@@ -101,45 +88,55 @@ export default function Navbar({
         </div>
       </div>
 
-      <div className="flex h-14 items-center justify-center gap-2">
-        <div className="bg-sidebar pointer-events-auto flex h-12 items-center gap-2 rounded-md px-2.5 text-muted-foreground">
-        </div>
-      </div>
+          <div className="flex h-14 items-center justify-center gap-2">
+              <div className="bg-sidebar pointer-events-auto flex h-12 items-center gap-2 rounded-md px-2.5 text-muted-foreground">
+              <h2>Video Name:</h2>
+                  <AutosizeInput
+                      name="title"
+                      value={title}
+                      onChange={handleTitleChange}
+                      width={400}
+                      inputClassName="border-none outline-none px-1 bg-background text-sm font-medium text-zinc-200"
+                  />
+              </div>
+          </div>
 
       <div className="flex h-14 items-center justify-end gap-2">
-        <div className="bg-sidebar pointer-events-auto flex h-12 items-center gap-2 rounded-md px-2.5">
-          <DownloadPopover stateManager={stateManager} />
+              <div className="bg-sidebar pointer-events-auto flex h-12 items-center gap-2 rounded-md px-2.5">
+                  <DownloadPopover stateManager={stateManager} videoTitle={projectName} />
         </div>
       </div>
     </div>
   );
 }
 
-const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
+const DownloadPopover = ({ stateManager, videoTitle }) => {
   const { actions, exportType } = useDownloadState();
   const [isExportTypeOpen, setIsExportTypeOpen] = useState(false);
   const [open, setOpen] = useState(false);
 
   const handleExport = () => {
-    const data: IDesign = {
-      id: generateId(),
+      const data: IDesign = {
+          title: videoTitle,
+        id: generateId(),
       ...stateManager.getState(),
     };
 
     actions.setExportType("mp4");
     actions.setState({ payload: data });
-    actions.startExport();
+      actions.startExport(videoTitle);
   };
 
     const handleExportToAzure = () => {
-    const data: IDesign = {
+        const data: IDesign = {
+        title: "My Video",
       id: generateId(),
       ...stateManager.getState(),
     };
 
     actions.setExportType("mp4");
     actions.setState({ payload: data });
-    actions.startExport();
+        actions.startExport(videoTitle);
   };
 
   return (
