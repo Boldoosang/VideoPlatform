@@ -41,65 +41,65 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
     setOutput: (output) => set({ output }),
     setDisplayProgressModal: (displayProgressModal) => set({ displayProgressModal }),
     startExport: async (title: string) => {
-      try {
-          set({ exporting: true, displayProgressModal: true });
-          const VIDEO_RENDERER_BACKEND = import.meta.env.VITE_VIDEO_RENDERER_BACKEND;
+        try {
+            set({ exporting: true, displayProgressModal: true });
+            const VIDEO_RENDERER_BACKEND = import.meta.env.VITE_VIDEO_RENDERER_BACKEND;
 
-        const { payload } = get();
-        if (!payload) throw new Error("Payload is not defined");
+            const { payload } = get();
+            if (!payload) throw new Error("Payload is not defined");
 
-          payload.title = title;
-          const formData = new FormData();
+            payload.title = title;
 
-          console.log(payload)
+            const response = await fetch(`${VIDEO_RENDERER_BACKEND}/api/render`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    design: payload,
+                    options: {
+                        fps: 30,
+                        size: payload.size,
+                        format: "mp4",
+                    },
+                }),
+            });
 
-          const response = await fetch(`${VIDEO_RENDERER_BACKEND}/api/render`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            design: payload,
-            options: {
-              fps: 30,
-              size: payload.size,
-              format: "mp4",
-            },
-          }),
-        });
+            if (!response.ok) throw new Error("Failed to submit export request.");
 
-        if (!response.ok) throw new Error("Failed to submit export request.");
+            const jobInfo = await response.json();
+            const videoId = jobInfo.videoId; 
 
-        const jobInfo = await response.json();
-          const videoId = jobInfo.video?.id;
+            if (!videoId) throw new Error("No video ID returned");
 
-          console.log(videoId)
+            const checkStatus = async (videoId: string) => {
+                const statusResponse = await fetch(
+                    `${VIDEO_RENDERER_BACKEND}/api/render?id=${videoId}&type=VIDEO_RENDERING`
+                );
 
-        const checkStatus = async () => {
-          const statusResponse = await fetch(
-              `${VIDEO_RENDERER_BACKEND}/api/render?id=${videoId}&type=VIDEO_RENDERING`
-          );
+                if (!statusResponse.ok)
+                    throw new Error("Failed to fetch export status.");
 
-          if (!statusResponse.ok)
-            throw new Error("Failed to fetch export status.");
+                const statusInfo = await statusResponse.json();
+                const { status, progress, url } = statusInfo.video;
 
-          const statusInfo = await statusResponse.json();
-          const { status, progress, url } = statusInfo.video;
+                set({ progress });
 
-          set({ progress });
+                if (status === "COMPLETED") {
+                    set({ exporting: false, output: { url, type: get().exportType } });
+                } else if (status === "PENDING") {
+                    setTimeout(() => checkStatus(videoId), 2500);
+                } else if (status === "ERROR") {
+                    set({ exporting: false });
+                    throw new Error("Rendering failed.");
+                }
+            };
 
-          if (status === "COMPLETED") {
-            set({ exporting: false, output: { url, type: get().exportType } });
-          } else if (status === "PENDING") {
-            setTimeout(checkStatus, 2500);
-          }
-        };
-
-        checkStatus();
-      } catch (error) {
-        console.error(error);
-        set({ exporting: false });
-      }
-    },
+            checkStatus(videoId); 
+        } catch (error) {
+            console.error(error);
+            set({ exporting: false });
+        }
+    }
   }
 }));

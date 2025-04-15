@@ -23,71 +23,107 @@ app.get("/", (req, res) => {
   res.send("Video Platform video render server is running");
 });
 
+const renderStatusMap = new Map(); // key: videoId, value: { status, progress, url }
+
 app.post("/api/render", async (req, res) => {
-  try {
-    const { design } = req.body;
-    const videoName = req.body.design.title.trim().replace(/\s+/g, "_");
-    if (!videoName) {
-      return res.status(400).send("Video name is required");
+    try {
+        const { design } = req.body;
+        const videoName = req.body.design.title.trim().replace(/\s+/g, "_");
+        const videoId = `${Date.now()}_${videoName}`; // unique ID
+        const outputFileName = `${videoId}.mp4`;
+        const outputPath = path.join(process.cwd(), "out", outputFileName);
+
+        // Set initial status
+        renderStatusMap.set(videoId, {
+            status: "PENDING",
+            progress: 0,
+            url: null,
+        });
+
+        res.json({ success: true, videoId });
+
+        const entry = path.join(process.cwd(), "src", "index.ts");
+
+        const bundled = await bundle(entry);
+
+        const compositions = await getCompositions(bundled, {
+            inputProps: { design },
+        });
+
+        const composition = compositions.find((c) => c.id === "RenderVideo");
+
+        if (!composition) {
+            renderStatusMap.set(videoId, { status: "ERROR", progress: 0, url: null });
+            return;
+        }
+
+        // Simulate progress tracking (Remotion doesn't have built-in progress)
+        let progress = 0;
+        const simulateProgress = setInterval(() => {
+            if (progress < 90) {
+                progress += 10;
+                renderStatusMap.set(videoId, {
+                    ...renderStatusMap.get(videoId),
+                    progress,
+                });
+            }
+        }, 1000);
+
+        await renderMedia({
+            composition,
+            serveUrl: bundled,
+            codec: "h264",
+            outputLocation: outputPath,
+            inputProps: { design },
+        });
+
+        clearInterval(simulateProgress);
+
+        const blobServiceClient = BlobServiceClient.fromConnectionString(
+            AZURE_STORAGE_CONNECTION_STRING
+        );
+        const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
+        const blockBlobClient = containerClient.getBlockBlobClient(outputFileName);
+
+        const uploadStream = fs.createReadStream(outputPath);
+        await blockBlobClient.uploadStream(uploadStream);
+
+        const blobUrl = blockBlobClient.url;
+
+        renderStatusMap.set(videoId, {
+            status: "COMPLETED",
+            progress: 100,
+            url: blobUrl,
+        });
+
+        fs.rm(path.join(process.cwd(), "out"), { recursive: true, force: true }, () => { });
+    } catch (err) {
+        console.error(err);
+        // Update status to error
+        renderStatusMap.set(videoId, {
+            status: "ERROR",
+            progress: 0,
+            url: null,
+        });
     }
-    const entry = path.join(process.cwd(), "src", "index.ts");
-
-    console.log("Bundling project...");
-    const bundled = await bundle(entry);
-
-    console.log("Getting compositions...");
-    const compositions = await getCompositions(bundled, {
-      inputProps: { design },
-    });
-
-    const composition = compositions.find((c) => c.id === "RenderVideo");
-
-    if (!composition) {
-      return res.status(404).send("Composition not found");
-    }
-
-    const outputFileName = `${Date.now()}_${videoName}.mp4`;
-    const outputPath = path.join(process.cwd(), "out", outputFileName);
-
-    console.log("Rendering video...");
-    await renderMedia({
-      composition,
-      serveUrl: bundled,
-      codec: "h264",
-      outputLocation: outputPath,
-      inputProps: { design },
-    });
-
-    console.log("Uploading to Azure...");
-    const blobServiceClient = BlobServiceClient.fromConnectionString(
-      AZURE_STORAGE_CONNECTION_STRING,
-    );
-    const containerClient =
-      blobServiceClient.getContainerClient(CONTAINER_NAME);
-    const blockBlobClient = containerClient.getBlockBlobClient(outputFileName);
-
-    const uploadStream = fs.createReadStream(outputPath);
-    await blockBlobClient.uploadStream(uploadStream);
-
-    const blobUrl = blockBlobClient.url;
-    console.log("Uploaded to Azure:", blobUrl);
-
-    res.json({ success: true, url: blobUrl });
-
-    const outDir = path.join(process.cwd(), "out");
-
-    fs.rm(outDir, { recursive: true, force: true }, (err) => {
-      if (err) {
-        console.error("Failed to delete 'out' folder:", err);
-      } else {
-        console.log("'out' folder deleted successfully.");
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error rendering or uploading video");
-  }
 });
+
+app.get("/api/render", (req, res) => {
+    const { id, type } = req.query;
+
+    if (!id || type !== "VIDEO_RENDERING") {
+        return res.status(400).json({ error: "Invalid parameters" });
+    }
+
+    const statusInfo = renderStatusMap.get(id);
+
+    if (!statusInfo) {
+        return res.status(404).json({ error: "Video ID not found" });
+    }
+
+    res.json({ video: statusInfo });
+});
+
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`Remotion render server running at http://localhost:${port}`);
