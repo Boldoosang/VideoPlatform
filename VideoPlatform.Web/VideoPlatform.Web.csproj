@@ -10,8 +10,6 @@
   </PropertyGroup>
 
 	<Target Name="BuildReactApp" BeforeTargets="Build">
-		<RemoveDir Directories="wwwroot/assets" />
-		<MakeDir Directories="wwwroot/assets" />
 		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm install" ContinueOnError="true" />
 		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm run build" ContinueOnError="true">
 			<Output TaskParameter="ExitCode" PropertyName="ReactBuildExitCode" />

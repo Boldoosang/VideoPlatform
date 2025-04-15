@@ -42,6 +42,11 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
     setDisplayProgressModal: (displayProgressModal) => set({ displayProgressModal }),
     startExport: async (title: string) => {
         try {
+            const { exporting } = get();
+            if (exporting) {
+                set({ displayProgressModal: true });
+                return; 
+            } 
             set({ exporting: true, displayProgressModal: true });
             const VIDEO_RENDERER_BACKEND = import.meta.env.VITE_VIDEO_RENDERER_BACKEND;
 
