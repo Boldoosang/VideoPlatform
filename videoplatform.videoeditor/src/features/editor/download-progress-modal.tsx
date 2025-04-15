@@ -26,23 +26,47 @@ const DownloadProgressModal = () => {
               <div className="font-semibold">
                 <CircleCheckIcon />
               </div>
-              <div className="font-bold">Exported</div>
+              <div className="font-bold py-2">Exported to Azure</div>
               <div className="text-muted-foreground">
-                You can access the video in the edited videos tab of the Admin dashboard.
+                Access the video in the '<a href="/Admin/EditedVideoLibrary" target="_blank">Edited Videos</a>' tab of the Admin dashboard.
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4">
-            <div className="text-5xl font-semibold">
-              {Math.floor(progress)}%
+        <div className="flex flex-1 flex-col items-center justify-center gap-6">
+            <div className="text-5xl font-semibold text-white">
+                {progress}%
             </div>
-            <div className="font-bold">Video Queued for Rendering...</div>
-            <div className="text-center text-zinc-500">
-              <div>Closing the browser will not cancel the export.</div>
-              <div>The video will be saved to Azure.</div>
+            <div className="font-bold text-xl text-white">Video Rendering</div>
+            <div className="text-center text-zinc-300">
+                <div className="mt-5 w-full max-w-lg">
+                    <div className="flex justify-between">
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 0 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 20 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 50 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 80 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 90 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress === 100 ? 'bg-green-400' : 'bg-white'}`}></div>
+                    </div>
+                    <div className="my-5 text-lg text-white">
+                        {progress === 0 && <div>Initializing...</div>}
+                        {progress >= 20 && progress < 50 && <div>Starting Render Service...</div>}
+                        {progress >= 50 && progress < 80 && <div>Fetching Video Sources...</div>}
+                        {progress >= 80 && progress < 90 && <div>Video Queued...</div>}
+                        {progress >= 90 && progress < 100 && <div>Rendering...</div>}
+                        {progress === 100 && <div>Completed!</div>}
+                    </div>
+                </div>
+                <div>Closing the browser will not cancel the export.</div>
+                <div>The video will be saved to Azure.</div>
+                {progress === 90 && (
+                    <div className="mt-5 text-yellow-500 font-semibold">
+                        It will be here a while, but don't worry, it's processing.
+                    </div>
+                )}
             </div>
-          </div>
+        </div>
+
         )}
       </DialogContent>
     </Dialog>
