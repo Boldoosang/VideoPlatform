@@ -59,7 +59,10 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
+      - name: Ensure startup script is executable
+        run: chmod +x ./startup.sh
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
