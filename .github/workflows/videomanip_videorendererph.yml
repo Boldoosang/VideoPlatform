@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy Node.js app to Azure Web App - videorendererph
 
 on:
@@ -10,34 +13,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js version
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
 
-      - name: Install dependencies and build
+      - name: npm install, build, and test
         run: |
-          cd VideoPlatform.VideoRenderer
           npm install
           npm run build --if-present
           npm run test --if-present
 
       - name: Zip artifact for deployment
-        run: |
-          cd VideoPlatform.VideoRenderer
-          zip release.zip ./* -r
+        run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: VideoPlatform.VideoRenderer/release.zip
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,8 +45,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
       - name: Download artifact from build job
@@ -57,16 +56,13 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
-      - name: Ensure startup script is executable
-        run: chmod +x ./startup.sh
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D466DDE72C3042289CFAB9C6225CCF76 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_811766067CCD4C6BA8104614F452DED0 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_974753A3F73D4FA198819BE7C98144B3 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -74,4 +70,5 @@ jobs:
         with:
           app-name: 'videorendererph'
           slot-name: 'Production'
-          package: VideoPlatform.VideoRenderer
+          package: .
+          
