@@ -10,8 +10,11 @@
   </PropertyGroup>
 
 	<Target Name="BuildReactApp" BeforeTargets="Build">
-		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm install" />
-		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm run build" />
+		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm install" ContinueOnError="true" />
+		<Exec Command="cd ../VideoPlatform.VideoEditor &amp;&amp; npm run build" ContinueOnError="true">
+			<Output TaskParameter="ExitCode" PropertyName="ReactBuildExitCode" />
+		</Exec>
+		<Message Text="React build step failed but continuing..." Importance="high" Condition="'$(ReactBuildExitCode)' != '0'" />
 	</Target>
 
 
