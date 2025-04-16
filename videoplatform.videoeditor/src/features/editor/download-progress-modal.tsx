@@ -27,9 +27,17 @@ const DownloadProgressModal = () => {
                 <CircleCheckIcon />
               </div>
               <div className="font-bold py-2">Exported to Azure</div>
-              <div className="text-muted-foreground">
-                Access the video in the '<a href="/Admin/EditedVideoLibrary" target="_blank">Edited Videos</a>' tab of the Admin dashboard.
-              </div>
+                          <div className="text-muted-foreground">
+                              Access the video in the&nbsp;
+                              <a
+                                  href="/Admin/EditedVideoLibrary"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-blue-400 underline hover:text-blue-300 transition-colors duration-200"
+                              >
+                                  'Edited Videos'
+                              </a>&nbsp;tab of the Admin dashboard.
+                          </div>
             </div>
           </div>
         ) : (
