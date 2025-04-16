@@ -15,6 +15,9 @@ namespace VideoPlatform.Infrastructure.Repositories {
             _context = context;
         }
         public async Task AddEpisodeAsync(Episode episode) {
+            if (!string.IsNullOrWhiteSpace(episode.FilePath)) {
+                episode.ThumbnailFilePath = Path.ChangeExtension(episode.FilePath, ".png");
+            }
             await _context.Episodes.AddAsync(episode);
             await _context.SaveChangesAsync();
             return;

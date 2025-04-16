@@ -3,9 +3,10 @@ const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
 const { bundle } = require("@remotion/bundler");
-const { getCompositions, renderMedia } = require("@remotion/renderer");
+const { getCompositions, renderMedia, renderStill } = require("@remotion/renderer");
 const { BlobServiceClient } = require("@azure/storage-blob");
 const dotenv = require("dotenv");
+const sharp = require("sharp")
 
 dotenv.config();
 
@@ -15,8 +16,7 @@ const port = process.env.PORT || 8080;
 app.use(cors());
 app.use(express.json());
 
-const AZURE_STORAGE_CONNECTION_STRING =
-  process.env.AZURE_STORAGE_CONNECTION_STRING;
+const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
 
 app.get("/", (req, res) => {
@@ -30,8 +30,10 @@ app.post("/api/render", async (req, res) => {
         const { design } = req.body;
         const videoName = req.body.design.title.trim().replace(/\s+/g, "_");
         const videoId = `${Date.now()}_${videoName}`; // unique ID
-        const outputFileName = `${videoId}.mp4`;
-        const outputPath = path.join(process.cwd(), "out", outputFileName);
+        const videoOutputFileName = `${videoId}.mp4`;
+        const thumbnailOutputFileName = `${videoId}.png`;
+        const videoOutputPath = path.join(process.cwd(), "out", videoOutputFileName);
+        const thumbnailOutputPath = path.join(process.cwd(), "out", thumbnailOutputFileName);
 
         // Set initial status
         renderStatusMap.set(videoId, {
@@ -73,22 +75,45 @@ app.post("/api/render", async (req, res) => {
             composition,
             serveUrl: bundled,
             codec: "h264",
-            outputLocation: outputPath,
+            outputLocation: videoOutputPath,
+            inputProps: { design },
+            scale: 0.6667,
+            crf: 24
+        });
+
+        await renderStill({
+            composition,
+            serveUrl: bundled,
+            output: thumbnailOutputPath,
+            frame: 1,
             inputProps: { design },
         });
 
+        const thumbnailOutputPathTemp = path.join(
+            path.dirname(thumbnailOutputPath),
+            "temp_" + path.basename(thumbnailOutputPath)
+        );
+        await sharp(thumbnailOutputPath)
+            .resize({ width: 480 })
+            .png({ quality: 40 })
+            .toFile(thumbnailOutputPathTemp);
+
+        fs.renameSync(thumbnailOutputPathTemp, thumbnailOutputPath);
+
         clearInterval(simulateProgress);
 
-        const blobServiceClient = BlobServiceClient.fromConnectionString(
-            AZURE_STORAGE_CONNECTION_STRING
-        );
+        const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
         const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
-        const blockBlobClient = containerClient.getBlockBlobClient(outputFileName);
+        const videoBlockBlobClient = containerClient.getBlockBlobClient(videoOutputFileName);
+        const thumbnailBlockBlobClient = containerClient.getBlockBlobClient(thumbnailOutputFileName);
 
-        const uploadStream = fs.createReadStream(outputPath);
-        await blockBlobClient.uploadStream(uploadStream);
+        const uploadVideoStream = fs.createReadStream(videoOutputPath);
+        await videoBlockBlobClient.uploadStream(uploadVideoStream);
 
-        const blobUrl = blockBlobClient.url;
+        const uploadThumbnailStream = fs.createReadStream(thumbnailOutputPath);
+        await thumbnailBlockBlobClient.uploadStream(uploadThumbnailStream);
+
+        const blobUrl = videoBlockBlobClient.url;
 
         renderStatusMap.set(videoId, {
             status: "COMPLETED",
@@ -100,7 +125,7 @@ app.post("/api/render", async (req, res) => {
     } catch (err) {
         console.error(err);
         // Update status to error
-        renderStatusMap.set(videoId, {
+        renderStatusMap.set(videoId ?? 0, {
             status: "ERROR",
             progress: 0,
             url: null,

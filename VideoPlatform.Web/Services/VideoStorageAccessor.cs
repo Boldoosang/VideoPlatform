@@ -19,20 +19,20 @@ namespace VideoPlatform.Web.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<List<Video>> GetContainerVideoListAsync(string containerName)
-        {
+        public async Task<List<Video>> GetContainerVideoListAsync(string containerName) {
             var container = _blobServiceClient.GetBlobContainerClient(containerName);
             var blobs = container.GetBlobsAsync();
 
             var editedVideoList = new List<Video>();
 
-            await foreach (var blob in blobs)
-            {
-                var blobClient = container.GetBlobClient(blob.Name);
-                var blobProperties = container.GetBlobClient(blob.Name).GetProperties();
+            await foreach (var blob in blobs) {
+                if (!blob.Name.EndsWith(".mp4", StringComparison.OrdinalIgnoreCase))
+                    continue;
 
-                editedVideoList.Add(new Video()
-                {
+                var blobClient = container.GetBlobClient(blob.Name);
+                var blobProperties = await blobClient.GetPropertiesAsync();
+
+                editedVideoList.Add(new Video() {
                     Title = blob.Name,
                     FilePath = blobClient.Uri.ToString(),
                     UploadDate = blobProperties.Value.LastModified.DateTime,
@@ -41,6 +41,7 @@ namespace VideoPlatform.Web.Services
 
             return editedVideoList;
         }
+
 
         public async Task<Video?> GetVideoByContainerAndNameAsync(string containerName, string fileName)
         {
@@ -61,12 +62,16 @@ namespace VideoPlatform.Web.Services
 
             return null;
         }
-        public async Task<bool> DeleteVideoIfExistsAsync(string containerName, string fileName)
-        {
+        public async Task<bool> DeleteVideoIfExistsAsync(string containerName, string fileName) {
             var containerClient = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = containerClient.GetBlobClient(fileName);
-            var response = await blobClient.DeleteIfExistsAsync();
-            return response.Value;
+            var videoBlobClient = containerClient.GetBlobClient(fileName);
+            var videoDeleted = await videoBlobClient.DeleteIfExistsAsync();
+
+            var thumbnailFileName = Path.ChangeExtension(fileName, ".png");
+            var thumbnailBlobClient = containerClient.GetBlobClient(thumbnailFileName);
+            await thumbnailBlobClient.DeleteIfExistsAsync();
+
+            return videoDeleted.Value;
         }
 
         public async Task<bool> UploadVideoAsync(string containerName, string fileName, Stream videoStream)
