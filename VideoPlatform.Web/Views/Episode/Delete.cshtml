@@ -13,10 +13,12 @@
             <div class="video-container mb-1">
                 @if (!string.IsNullOrEmpty(Model.FilePath))
                 {
-                    <video class="video-js mx-auto border "
+                    <div style="position: relative; width: 100%; padding-top: 56.25%; overflow: hidden;" class="mb-3">
+                    <video class="video-js"
                            controls
                            preload="auto"
-                           data-setup="{}">
+                           data-setup="{}"
+                           style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
                         <source src="@Model.FilePath" type="video/mp4" />
                         <p class="vjs-no-js">
                             To view this video please enable JavaScript, and consider upgrading to a
@@ -24,6 +26,7 @@
                             <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>
                         </p>
                     </video>
+                    </div>
                 }
                 else
                 {
