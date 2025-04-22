@@ -6,7 +6,7 @@ const { bundle } = require("@remotion/bundler");
 const { getCompositions, renderMedia, renderStill } = require("@remotion/renderer");
 const { BlobServiceClient } = require("@azure/storage-blob");
 const dotenv = require("dotenv");
-const sharp = require("sharp")
+const sharp = require("sharp");
 
 dotenv.config();
 
@@ -18,12 +18,28 @@ app.use(express.json());
 
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME;
+const CHROMIUM_EXECUTABLE_PATH = process.env.CHROMIUM_EXECUTABLE_PATH || "/path/to/chromium"; // Fix for Chromium executable path
 
 app.get("/", (req, res) => {
-  res.send("Video Platform video render server is running");
+    console.log("Video Platform video render server is running");
+    res.send("Video Platform video render server is running");
 });
 
 const renderStatusMap = new Map(); // key: videoId, value: { status, progress, url }
+
+const retryOperation = async (operation) => {
+    try {
+        await operation();
+    } catch (err) {
+        console.log("Operation failed, retrying...");
+        try {
+            await operation(); // Retry once
+        } catch (err) {
+            console.error("Operation failed after retrying:", err);
+            throw err; // Mark as failed after retrying
+        }
+    }
+};
 
 app.post("/api/render", async (req, res) => {
     try {
@@ -42,12 +58,17 @@ app.post("/api/render", async (req, res) => {
             url: null,
         });
 
+        console.log(`Started rendering video with ID: ${videoId}`);
         res.json({ success: true, videoId });
 
         const entry = path.join(process.cwd(), "src", "index.ts");
 
+        console.log("Bundling the Remotion project...");
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 10, url: null });
         const bundled = await bundle(entry);
 
+        console.log("Getting compositions...");
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 20, url: null });
         const compositions = await getCompositions(bundled, {
             inputProps: { design },
         });
@@ -55,44 +76,43 @@ app.post("/api/render", async (req, res) => {
         const composition = compositions.find((c) => c.id === "RenderVideo");
 
         if (!composition) {
+            console.error("Composition RenderVideo not found.");
             renderStatusMap.set(videoId, { status: "ERROR", progress: 0, url: null });
             return;
         }
 
-        // Simulate progress tracking (Remotion doesn't have built-in progress)
-        let progress = 0;
-        const simulateProgress = setInterval(() => {
-            if (progress < 90) {
-                progress += 10;
-                renderStatusMap.set(videoId, {
-                    ...renderStatusMap.get(videoId),
-                    progress,
-                });
-            }
-        }, 1000);
-
-        await renderMedia({
-            composition,
-            serveUrl: bundled,
-            codec: "h264",
-            outputLocation: videoOutputPath,
-            inputProps: { design },
-            scale: 0.6667,
-            crf: 24
+        console.log("Rendering video...");
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 40, url: null });
+        await retryOperation(async () => {
+            await renderMedia({
+                composition,
+                serveUrl: bundled,
+                codec: "h264",
+                outputLocation: videoOutputPath,
+                inputProps: { design },
+                scale: 0.6667,
+                crf: 24,
+                chromiumExecutable: CHROMIUM_EXECUTABLE_PATH,
+            });
         });
 
-        await renderStill({
-            composition,
-            serveUrl: bundled,
-            output: thumbnailOutputPath,
-            frame: 1,
-            inputProps: { design },
+        console.log("Rendering thumbnail...");
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 80, url: null });
+        await retryOperation(async () => {
+            await renderStill({
+                composition,
+                serveUrl: bundled,
+                output: thumbnailOutputPath,
+                frame: 1,
+                inputProps: { design },
+            });
         });
 
         const thumbnailOutputPathTemp = path.join(
             path.dirname(thumbnailOutputPath),
             "temp_" + path.basename(thumbnailOutputPath)
         );
+        console.log("Optimizing thumbnail...");
         await sharp(thumbnailOutputPath)
             .resize({ width: 480 })
             .png({ quality: 40 })
@@ -100,8 +120,11 @@ app.post("/api/render", async (req, res) => {
 
         fs.renameSync(thumbnailOutputPathTemp, thumbnailOutputPath);
 
-        clearInterval(simulateProgress);
+        // Set progress to 80% when the thumbnail is done
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 90, url: null });
 
+        console.log("Uploading to Azure...");
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 95, url: null });
         const blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
         const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
         const videoBlockBlobClient = containerClient.getBlockBlobClient(videoOutputFileName);
@@ -121,9 +144,11 @@ app.post("/api/render", async (req, res) => {
             url: blobUrl,
         });
 
+        console.log(`Video rendering completed. URL: ${blobUrl}`);
+
         fs.rm(path.join(process.cwd(), "out"), { recursive: true, force: true }, () => { });
     } catch (err) {
-        console.error(err);
+        console.error("Error occurred during rendering:", err);
         // Update status to error
         renderStatusMap.set(videoId ?? 0, {
             status: "ERROR",
@@ -137,19 +162,21 @@ app.get("/api/render", (req, res) => {
     const { id, type } = req.query;
 
     if (!id || type !== "VIDEO_RENDERING") {
+        console.error("Invalid parameters received:", req.query);
         return res.status(400).json({ error: "Invalid parameters" });
     }
 
     const statusInfo = renderStatusMap.get(id);
 
     if (!statusInfo) {
+        console.error(`Video ID ${id} not found`);
         return res.status(404).json({ error: "Video ID not found" });
     }
 
+    console.log(`Fetching status for video ID: ${id}`);
     res.json({ video: statusInfo });
 });
 
-
 app.listen(port, "0.0.0.0", () => {
-  console.log(`Remotion render server running at http://localhost:${port}`);
+    console.log(`Remotion render server running at http://localhost:${port}`);
 });
