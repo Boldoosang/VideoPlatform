@@ -64,9 +64,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E138EB76F3E04010A7B4DC27A6A88942 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6F0D6DFC11D54E9D81A73C05F1A8E1A2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A9069D74F7DC441AACDFC265D1BB534A }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -74,4 +74,5 @@ jobs:
         with:
           app-name: 'videorendererph'
           slot-name: 'Production'
-          package: VideoPlatform.VideoRenderer
+          package: .
+          
