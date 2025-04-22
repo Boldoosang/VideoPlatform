@@ -74,5 +74,5 @@ jobs:
         with:
           app-name: 'videorendererph'
           slot-name: 'Production'
-          package: VideoPlatform.VideoRenderer
+          package: .
           
