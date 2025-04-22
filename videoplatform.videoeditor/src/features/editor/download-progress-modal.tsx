@@ -7,7 +7,8 @@ import { download } from "@/utils/download";
 
 const DownloadProgressModal = () => {
   const { progress, displayProgressModal, output, actions } = useDownloadState();
-  const isCompleted = progress === 100;
+    const isCompleted = progress === 100;
+    const isError = progress === -1;
 
   return (
     <Dialog
@@ -40,7 +41,20 @@ const DownloadProgressModal = () => {
                           </div>
             </div>
           </div>
-        ) : (
+        ) : isError ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-6">
+                <div className="flex items-center gap-3 text-5xl font-semibold text-red-500">
+                    <XIcon className="w-14 h-14 text-red-600 drop-shadow-lg animate-pulse" />
+                    <span>Error</span>
+                </div>
+                <div className="font-bold text-xl text-white">Video Rendering Failed</div>
+                <div className="text-center text-zinc-300 max-w-lg">
+                    <p className="mb-4">
+                        Something went wrong during the video rendering process.
+                    </p>
+                </div>
+            </div>
+        ): (
         <div className="flex flex-1 flex-col items-center justify-center gap-6">
             <div className="text-5xl font-semibold text-white">
                 {progress}%
@@ -51,17 +65,19 @@ const DownloadProgressModal = () => {
                     <div className="flex justify-between">
                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 0 ? 'bg-green-400' : 'bg-white'}`}></div>
                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 20 ? 'bg-green-400' : 'bg-white'}`}></div>
-                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 50 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 40 ? 'bg-green-400' : 'bg-white'}`}></div>
                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 80 ? 'bg-green-400' : 'bg-white'}`}></div>
                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 90 ? 'bg-green-400' : 'bg-white'}`}></div>
+                        <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress >= 95 ? 'bg-green-400' : 'bg-white'}`}></div>
                         <div className={`w-3 h-3 rounded-full transition-colors duration-300 ${progress === 100 ? 'bg-green-400' : 'bg-white'}`}></div>
                     </div>
                     <div className="my-5 text-lg text-white">
                         {progress === 0 && <div>Initializing...</div>}
-                        {progress >= 20 && progress < 50 && <div>Starting Render Service...</div>}
-                        {progress >= 50 && progress < 80 && <div>Fetching Video Sources...</div>}
-                        {progress >= 80 && progress < 90 && <div>Video Queued...</div>}
-                        {progress >= 90 && progress < 100 && <div>Rendering...</div>}
+                        {progress >= 20 && progress < 40 && <div>Getting compositions...</div>}
+                        {progress >= 40 && progress < 80 && <div>Rendering video...</div>}
+                        {progress >= 80 && progress < 90 && <div>Rendering thumbnail...</div>}
+                        {progress >= 90 && progress < 95 && <div>Optimizing thumbnail...</div>}
+                        {progress >= 95 && progress < 100 && <div>Uploading to Azure...</div>}
                         {progress === 100 && <div>Completed!</div>}
                     </div>
                 </div>

@@ -7,6 +7,7 @@ interface Output {
 }
 
 interface DownloadState {
+  error: string;
   projectId: string;
   exporting: boolean;
   exportType: "json" | "mp4";
@@ -14,7 +15,8 @@ interface DownloadState {
   output?: Output;
   payload?: IDesign;
   displayProgressModal: boolean;
-  actions: {
+    actions: {
+    setErrorState: (error: string) => void;
     setProjectId: (projectId: string) => void;
     setExporting: (exporting: boolean) => void;
     setExportType: (exportType: "json" | "mp4") => void;
@@ -27,12 +29,19 @@ interface DownloadState {
 }
 
 export const useDownloadState = create<DownloadState>((set, get) => ({
+  error: "",
   projectId: "",
   exporting: false,
   exportType: "mp4",
   progress: 0,
   displayProgressModal: false,
   actions: {
+    setErrorState: (error) => {
+          set({ error })
+          set({ exporting: false, displayProgressModal: true });
+          set({ output: { url: null, type: get().exportType } });
+          set({ progress: -1 });
+    },
     setProjectId: (projectId) => set({ projectId }),
     setExporting: (exporting) => set({ exporting }),
     setExportType: (exportType) => set({ exportType }),
@@ -51,7 +60,13 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
             const VIDEO_RENDERER_BACKEND = import.meta.env.VITE_VIDEO_RENDERER_BACKEND;
 
             const { payload } = get();
-            if (!payload) throw new Error("Payload is not defined");
+            if (!payload) {
+                set({ error: "Failed to export video." })
+                set({ exporting: false, displayProgressModal: true });
+                set({ output: { url: null, type: get().exportType } });
+                set({ progress: -1 });
+                throw new Error("Failed to submit export request.");
+            } 
 
             payload.title = title;
 
@@ -70,20 +85,38 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
                 }),
             });
 
-            if (!response.ok) throw new Error("Failed to submit export request.");
+            if (!response.ok) {
+                set({ error: "Failed to export video." })
+                set({ exporting: false, displayProgressModal: true });
+                set({ output: { url: null, type: get().exportType } });
+                set({ progress: -1 });
+                throw new Error("Failed to submit export request.");
+            } 
 
             const jobInfo = await response.json();
             const videoId = jobInfo.videoId; 
 
-            if (!videoId) throw new Error("No video ID returned");
+            if (!videoId) {
+                set({ error: "Failed to export video." })
+                set({ exporting: false, displayProgressModal: true });
+                set({ output: { url: null, type: get().exportType } });
+                set({ progress: -1 });
+                throw new Error("No video ID returned");
+            } 
 
             const checkStatus = async (videoId: string) => {
                 const statusResponse = await fetch(
                     `${VIDEO_RENDERER_BACKEND}/api/render?id=${videoId}&type=VIDEO_RENDERING`
                 );
 
-                if (!statusResponse.ok)
+                if (!statusResponse.ok) {
+                    set({ error: "Failed to export video." })
+                    set({ exporting: false, displayProgressModal: true });
+                    set({ output: { url: null, type: get().exportType } });
+                    set({ progress: -1 });
                     throw new Error("Failed to fetch export status.");
+                }
+
 
                 const statusInfo = await statusResponse.json();
                 const { status, progress, url } = statusInfo.video;
@@ -95,15 +128,21 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
                 } else if (status === "PENDING") {
                     setTimeout(() => checkStatus(videoId), 2500);
                 } else if (status === "ERROR") {
-                    set({ exporting: false });
-                    throw new Error("Rendering failed.");
+                    set({ error: "Failed to export video." })
+                    set({ exporting: false, displayProgressModal: true });
+                    set({ output: { url: null, type: get().exportType } });
+                    set({ progress: -1 });
+                    throw new Error("Rendering failed."); 
                 }
             };
 
             checkStatus(videoId); 
         } catch (error) {
             console.error(error);
-            set({ exporting: false });
+            set({ error })
+            set({ exporting: false, displayProgressModal: true });
+            set({ output: { url: null, type: get().exportType } });
+            set({ progress: -1 });
         }
     }
   }

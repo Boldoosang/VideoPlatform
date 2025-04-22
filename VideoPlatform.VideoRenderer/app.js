@@ -42,10 +42,11 @@ const retryOperation = async (operation) => {
 };
 
 app.post("/api/render", async (req, res) => {
+    let videoId = null
     try {
         const { design } = req.body;
         const videoName = req.body.design.title.trim().replace(/\s+/g, "_");
-        const videoId = `${Date.now()}_${videoName}`; // unique ID
+        videoId = `${Date.now()}_${videoName}`; // unique ID
         const videoOutputFileName = `${videoId}.mp4`;
         const thumbnailOutputFileName = `${videoId}.png`;
         const videoOutputPath = path.join(process.cwd(), "out", videoOutputFileName);
@@ -77,7 +78,7 @@ app.post("/api/render", async (req, res) => {
 
         if (!composition) {
             console.error("Composition RenderVideo not found.");
-            renderStatusMap.set(videoId, { status: "ERROR", progress: 0, url: null });
+            renderStatusMap.set(videoId, { status: "ERROR", progress: -1, url: null });
             return;
         }
 
@@ -152,7 +153,7 @@ app.post("/api/render", async (req, res) => {
         // Update status to error
         renderStatusMap.set(videoId ?? 0, {
             status: "ERROR",
-            progress: 0,
+            progress: -1,
             url: null,
         });
     }
