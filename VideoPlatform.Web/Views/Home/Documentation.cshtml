@@ -666,6 +666,227 @@
                     </td>
                     <td class="text-success">Pass</td>
                 </tr>
+                <tr>
+                    <td>GT-02</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Edit and Render a Video</p>
+                        <p><strong>Test Description:</strong> An admin should be able to edit a video and render it for publishing.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as an admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on the Video Library.</li>
+                                <li>Select "edit" on uploaded video from the library.</li>
+                                <li>Make changes to the video.</li>
+                                <li>Add the title to the video using the textbox at the top.</li>
+                                <li>Click the “Export” button in the top right.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The video is rendered and saved to the Edited Library with changes applied.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-03</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Create a New Season</p>
+                        <p><strong>Test Description:</strong> Admin should be able to create a new season with a valid title.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as an admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on the Seasons section.</li>
+                                <li>Click “Create Season”.</li>
+                                <li>Enter the details and click save.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The season is saved and listed in the Seasons list.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-04</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Edit a Season</p>
+                        <p><strong>Test Description:</strong> Admin should be able to modify the name or description of an existing season.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on Seasons and click Edit on a season.</li>
+                                <li>Change the details.</li>
+                                <li>Click save.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The season details are updated accordingly.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-05</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Delete a Season</p>
+                        <p><strong>Test Description:</strong> Admin should be able to delete a season with no episodes.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on Seasons.</li>
+                                <li>Select a season without episodes.</li>
+                                <li>Click “Delete” and confirm.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The season is deleted and no longer appears in the list.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-06</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Attempt to Delete a Season with Episodes</p>
+                        <p><strong>Test Description:</strong> Admin should not be able to delete a season that has one or more episodes.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on Seasons.</li>
+                                <li>Navigate to a season that contains episodes.</li>
+                                <li>Click “Delete”.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The system prevents deletion and/or displays a message indicating that the season has episodes.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-07</td>
+                    <td>
+                        <p><strong>Test Name:</strong> View a Published Episode</p>
+                        <p><strong>Test Description:</strong> Any user should be able to view a published episode from the public page.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Navigate to the home page.</li>
+                                <li>Select a published episode.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The video player loads and plays the selected published episode.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-08</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Attempt to View an Unpublished Episode</p>
+                        <p><strong>Test Description:</strong> Unauthenticated users should not be able to view unpublished episodes.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Navigate to the episode URL of an unpublished episode.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> A message is displayed or the user is redirected with an unauthorized access message.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-09</td>
+                    <td>
+                        <p><strong>Test Name:</strong> View an Unpublished Episode as Admin</p>
+                        <p><strong>Test Description:</strong> Admin should be able to preview unpublished episodes.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the unpublished episode page.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The episode loads in preview mode with an admin-only notice.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-10</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Edit Episode Post</p>
+                        <p><strong>Test Description:</strong> Admin should be able to update the metadata of an episode (title, description, tags).</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Go to the episode management section.</li>
+                                <li>Click “Edit” on an episode.</li>
+                                <li>Change title and description, then save.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The episode information is updated and shown correctly in listings.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-11</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Delete Edited Video from Edited Library</p>
+                        <p><strong>Test Description:</strong> Admin should be able to remove a rendered video from the Edited Library.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on the Edited Library.</li>
+                                <li>Click delete on a video and confirm.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The video is removed from the edited library and no longer visible.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-12</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Edit Video from Edited Library</p>
+                        <p><strong>Test Description:</strong> Admin should be able to re-edit a previously edited video.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on the Edited Library.</li>
+                                <li>Click “Edit” on the desired video.</li>
+                                <li>Add text to the video.</li>
+                                <li>Click the Export button in the top right.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The edited video is updated and saved with the latest changes.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+                <tr>
+                    <td>GT-13</td>
+                    <td>
+                        <p><strong>Test Name:</strong> Attempt to Delete Video Used in an Episode</p>
+                        <p><strong>Test Description:</strong> Admin should not be able to delete a video that is currently used in a published or draft episode.</p>
+                        <p>
+                            <strong>Test Steps:</strong>
+                            <ol>
+                                <li>Login as admin.</li>
+                                <li>Navigate to the Admin Dashboard.</li>
+                                <li>Click on the Edited Library.</li>
+                                <li>Locate a video that is used in at least one episode.</li>
+                                <li>Click “Delete” and confirm the action.</li>
+                            </ol>
+                        </p>
+                        <p><strong>Expected Result:</strong> The system should prevent the deletion and display a warning indicating that the video is in use by one or more episodes.</p>
+                    </td>
+                    <td class="text-success">Pass</td>
+                </tr>
+
             </tbody>
         </table>
     </div>
