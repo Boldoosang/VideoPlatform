@@ -49,6 +49,10 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
 
         public async Task UpdateEpisodeAsync(Episode episode) {
+            if (!string.IsNullOrWhiteSpace(episode.FilePath)) {
+                var thumbnailPath = Path.ChangeExtension(episode.FilePath, ".png");
+                episode.ThumbnailFilePath = File.Exists(thumbnailPath) ? thumbnailPath : null;
+            }
             _context.Episodes.Update(episode);
             await _context.SaveChangesAsync();
         }
