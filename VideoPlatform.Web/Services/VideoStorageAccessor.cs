@@ -88,5 +88,12 @@ namespace VideoPlatform.Web.Services
                 return false;
             }
         }
+
+        public async Task<bool> VideoThumbnailExistsAsync(string containerName, string videoName) {
+            var blobContainerClient = _blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(Path.ChangeExtension(videoName, ".png"));
+            var exists = await blobClient.ExistsAsync();
+            return exists.Value;
+        }
     }
 }

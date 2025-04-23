@@ -11,12 +11,18 @@ namespace VideoPlatform.Infrastructure.Repositories {
     public class EpisodeRepository : IEpisodeRepository {
 
         private readonly VideoPlatformContext _context;   
-        public EpisodeRepository(VideoPlatformContext context) {
+        private readonly IVideoStorageAccessor _videoStorageAccessor;
+        public EpisodeRepository(VideoPlatformContext context, IVideoStorageAccessor videoStorageAccessor) {
             _context = context;
+            _videoStorageAccessor = videoStorageAccessor;
         }
         public async Task AddEpisodeAsync(Episode episode) {
-            if (!string.IsNullOrWhiteSpace(episode.FilePath)) {
+            // Use video storage accessor to determine if the thumbnail exists
+
+            if (await _videoStorageAccessor.VideoThumbnailExistsAsync("editedvideos", episode.FilePath.Split('/').Last())) {
                 episode.ThumbnailFilePath = Path.ChangeExtension(episode.FilePath, ".png");
+            } else {
+                episode.ThumbnailFilePath = null;
             }
             await _context.Episodes.AddAsync(episode);
             await _context.SaveChangesAsync();
@@ -49,9 +55,10 @@ namespace VideoPlatform.Infrastructure.Repositories {
         }
 
         public async Task UpdateEpisodeAsync(Episode episode) {
-            if (!string.IsNullOrWhiteSpace(episode.FilePath)) {
-                var thumbnailPath = Path.ChangeExtension(episode.FilePath, ".png");
-                episode.ThumbnailFilePath = File.Exists(thumbnailPath) ? thumbnailPath : null;
+            if (await _videoStorageAccessor.VideoThumbnailExistsAsync("editedvideos", episode.FilePath.Split('/').Last())) {
+                episode.ThumbnailFilePath = Path.ChangeExtension(episode.FilePath, ".png");
+            } else {
+                episode.ThumbnailFilePath = null;
             }
             _context.Episodes.Update(episode);
             await _context.SaveChangesAsync();

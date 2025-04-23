@@ -11,8 +11,8 @@ namespace VideoPlatform.Domain.Interfaces
     {
         Task<List<Video>> GetContainerVideoListAsync(string containerName);
         Task<Video?> GetVideoByContainerAndNameAsync(string containerName, string fileName);
-
         Task<bool> UploadVideoAsync(string containerName, string fileName, Stream videoStream);
         Task<bool> DeleteVideoIfExistsAsync(string containerName, string fileName);
+        Task<bool> VideoThumbnailExistsAsync(string containerName, string fileName);
     }
 }
