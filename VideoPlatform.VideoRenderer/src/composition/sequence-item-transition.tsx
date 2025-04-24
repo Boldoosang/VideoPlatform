@@ -250,7 +250,7 @@ export const TransitionSequenceItem: Record<
                 <OffthreadVideo
                   startFrom={(item.trim?.from! / 1000) * fps}
                   src={details.src}
-                  volume={details.volume || 0 / 100}
+                  volume={details.volume ? details.volume / 100 : 0 / 100}
                   style={{
                     pointerEvents: "none",
                     top: -crop.y || 0,
@@ -303,7 +303,7 @@ export const TransitionSequenceItem: Record<
                 endAt={(item.trim?.to! / 1000) * fps}
                 playbackRate={playbackRate}
                 src={details.src}
-                volume={details.volume || 0 / 100}
+                volume={details.volume ? details.volume / 100 : 0 / 100}
                 style={{
                   pointerEvents: "none",
                   top: -crop.y || 0,
@@ -339,7 +339,7 @@ export const TransitionSequenceItem: Record<
             startFrom={(trim.from / 1000) * fps}
             endAt={(trim.to / 1000) * fps}
             src={details.src}
-            volume={(details.volume || 0) / 100}
+            volume={details.volume ? details.volume / 100 : 0 / 100}
           />
         </AbsoluteFill>
       </TransitionSeries.Sequence>
