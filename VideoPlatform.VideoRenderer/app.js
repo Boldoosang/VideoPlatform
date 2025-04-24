@@ -52,7 +52,7 @@ app.post("/api/render", async (req, res) => {
         const videoOutputPath = path.join(process.cwd(), "out", videoOutputFileName);
         const thumbnailOutputPath = path.join(process.cwd(), "out", thumbnailOutputFileName);
 
-        renderStatusMap.set(videoId, { status: "PENDING", progress: 0, url: null });
+        renderStatusMap.set(videoId, { status: "PENDING", progress: 0, url: null, updatedAt: null });
 
         console.log(`Started rendering video with ID: ${videoId}`);
         res.json({ success: true, videoId });
@@ -133,6 +133,7 @@ app.post("/api/render", async (req, res) => {
         renderStatusMap.set(videoId, {
             status: "COMPLETED",
             progress: 100,
+            updatedAt: Date.now(),
             url: blobUrl,
         });
 
@@ -144,6 +145,7 @@ app.post("/api/render", async (req, res) => {
         renderStatusMap.set(videoId ?? 0, {
             status: "ERROR",
             progress: -1,
+            updatedAt: Date.now(),
             url: null,
         });
     }
@@ -165,6 +167,28 @@ app.get("/api/render", (req, res) => {
 
     console.log(`Fetching status for video ID: ${id}`);
     res.json({ video: statusInfo });
+});
+
+app.get("/jobs", (req, res) => {
+    const jobs = [];
+    const now = Date.now();
+
+    const clearNonPendingInterval = 30 * 1000;
+
+    renderStatusMap.forEach((value, key) => {
+        const isPending = value.status === "PENDING";
+        const isRecent = value.updatedAt && (now - value.updatedAt <= clearNonPendingInterval);
+
+        if (isPending || isRecent) {
+            jobs.push({
+                videoId: key,
+                progress: value.progress,
+                status: value.status
+            });
+        }
+    });
+
+    res.json({ jobs });
 });
 
 app.listen(port, "0.0.0.0", () => {

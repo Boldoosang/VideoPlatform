@@ -13,11 +13,11 @@ namespace VideoPlatform.Web.Controllers {
 
         private readonly IVideoStorageAccessor _videoStorageAccessor;
         private readonly IEpisodeRepository _episodeRepository;
-
-        public AdminController(IEpisodeRepository episodeRepository, IVideoStorageAccessor videoStorageAccessor)
-        {
+        private readonly IConfiguration _configuration;
+        public AdminController(IEpisodeRepository episodeRepository, IVideoStorageAccessor videoStorageAccessor, IConfiguration configuration) {
             _videoStorageAccessor = videoStorageAccessor;
             _episodeRepository = episodeRepository;
+            _configuration = configuration;
         }
 
         public IActionResult Index() {
@@ -42,6 +42,8 @@ namespace VideoPlatform.Web.Controllers {
 
         [HttpGet]
         public async Task<IActionResult> EditedVideoLibrary() {
+            var baseUrl = _configuration["VideoRendererBackendUrl"];
+            ViewData["VideoRendererBackendUrl"] = baseUrl;
             var videoList = await _videoStorageAccessor.GetContainerVideoListAsync("editedvideos");
 
             return View(videoList);

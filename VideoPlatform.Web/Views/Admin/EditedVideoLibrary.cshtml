@@ -25,6 +25,18 @@
     </a>
 </div>
 
+<div class="container mb-4" id="pendingJobsContainer" style="display: none;">
+    <div class="card bg-dark text-light shadow">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0 py-2"><i class="bi bi-hourglass-split me-2"></i> Pending Video Jobs</h5>
+        </div>
+        <div class="card-body p-3">
+            <div id="pendingJobsList">
+            </div>
+        </div>
+    </div>
+</div>
+
 <hr class="mt-0 mb-1" />
 
 <div class="container">
@@ -105,9 +117,77 @@
                 searching: true,
                 order: [[1, "desc"]],
                 columnDefs: [
-                    { orderable: false, targets: [0, 1] }
+                    { orderable: true, targets: [0, 1] }
                 ]
             });
         });
+    </script>
+    <script>
+        const videoRendererBackendUrl = '@ViewData["VideoRendererBackendUrl"]';
+        function loadPendingJobs() {
+            fetch(`${videoRendererBackendUrl}/jobs`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("pendingJobsContainer");
+                    const list = document.getElementById("pendingJobsList");
+
+                    list.innerHTML = ""; // Clear old items
+
+                    if (data.jobs && data.jobs.length > 0) {
+                        container.style.display = "block";
+
+                        data.jobs.forEach(job => {
+                            const jobElement = document.createElement("div");
+                            jobElement.className = "mb-4";
+
+                            const isError = job.progress === -1;
+                            const isComplete = job.progress >= 100 && !isError;
+                            const isInProgress = !isError && !isComplete;
+
+                            const progressBarClass = isComplete
+                                ? "bg-success"
+                                : isError
+                                    ? "bg-danger"
+                                    : "bg-primary progress-bar-striped progress-bar-animated";
+
+                            const progressDisplay = isError
+                                ? `<span class="text-danger"><strong>Error</strong></span>`
+                                : `<span><strong>${job.progress}%</strong></span>`;
+
+                            const message = isComplete
+                                ? `<div class="mt-2 text-success"><i class="bi bi-check-circle me-1"></i>
+                                       Completed – <strong>refresh</strong> the page to see the new video.
+                                   </div>`
+                                : isError
+                                    ? `<div class="mt-2 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>
+                                          An error occurred while rendering this video.
+                                       </div>`
+                                    : "";
+
+                            jobElement.innerHTML = `
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>Render Job ID:</strong> ${job.videoId}</span>
+                                    ${progressDisplay}
+                                </div>
+                                <div class="progress bg-dark" role="progressbar" aria-label="Pending job progress">
+                                    <div class="progress-bar ${progressBarClass}"
+                                         style="width: ${isError ? '100' : job.progress}%">
+                                    </div>
+                                </div>
+                                ${message}
+                            `;
+                            list.appendChild(jobElement);
+                        });
+                    } else {
+                        container.style.display = "none";
+                    }
+                })
+                .catch(err => {
+                    console.error("Failed to fetch pending jobs:", err);
+                });
+        }
+
+        loadPendingJobs();
+        setInterval(loadPendingJobs, 5000);
     </script>
 }
